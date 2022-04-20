@@ -1,0 +1,29 @@
+{
+  "name": "share-a-meal",
+  "version": "1.0.0",
+  "description": "share a meal api",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zuijd/share-a-meal.git"
+  },
+  "keywords": [
+    "api",
+    "js",
+    "shareameal"
+  ],
+  "author": "Daniel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zuijd/share-a-meal/issues"
+  },
+  "homepage": "https://github.com/Zuijd/share-a-meal#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "nodemon": "^2.0.15"
+  }
+}
