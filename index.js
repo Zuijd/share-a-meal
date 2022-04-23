@@ -17,16 +17,32 @@ app.all("*", (req, res, next) => {
 //register as a new user
 app.post("/api/user", (req, res) => {
     let movie = req.body;
-    id++;
-    movie = {
-        id,
-        ...movie,
-    };
-    database.push(movie);
-    res.status(201).json({
-        status: 201,
-        result: database,
-    });
+    let email = req.body.emailAdress;
+    let emailcheck = true;
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].emailAdress == email) {
+            emailcheck = false;
+        }
+    }
+
+    if (emailcheck) {
+        id++;
+        movie = {
+            id,
+            ...movie,
+        };
+        database.push(movie);
+        res.status(201).json({
+            status: 201,
+            result: database,
+        });
+    } else {
+        res.status(401).json({
+            status: 401,
+            message: "This email is already linked to a different account!",
+        })
+    }
 });
 
 //get all users
@@ -41,7 +57,7 @@ app.get("/api/user", (req, res) => {
 app.get("/api/user/profile", (req, res) => {
     res.status(401).json({
         status: 401,
-        result: "End-point not found",
+        message: "This functionality is not realised (yet)!",
     });
 })
 
@@ -60,7 +76,7 @@ app.get("/api/user/:userId", (req, res, next) => {
     } else {
         res.status(401).json({
             status: 401,
-            result: `User with ID ${userId} not found`,
+            message: `User with ID ${userId} not found`,
         });
     }
 });
@@ -98,7 +114,7 @@ app.put("/api/user/:userId", (req, res, next) => {
     } else {
         res.status(401).json({
             status: 401,
-            result: `User with ID ${userId} not found`,
+            message: `User with ID ${userId} not found`,
         });
     }
 });
@@ -133,10 +149,11 @@ app.delete("/api/user/:userId", (req, res, next) => {
     }
 });
 
+//default error 
 app.all("*", (req, res) => {
     res.status(401).json({
         status: 401,
-        result: "End-point not found",
+        message: "End-point not found",
     });
 });
 
