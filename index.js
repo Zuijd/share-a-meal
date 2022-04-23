@@ -14,21 +14,14 @@ app.all("*", (req, res, next) => {
     next();
 });
 
-app.get("/", (req, res) => {
-    res.status(200).json({
-        status: 200,
-        result: "Hello World",
-    });
-});
-
-app.post("/api/movie", (req, res) => {
+//register as a new user
+app.post("/api/user", (req, res) => {
     let movie = req.body;
     id++;
     movie = {
         id,
         ...movie,
     };
-    console.log(movie);
     database.push(movie);
     res.status(201).json({
         status: 201,
@@ -36,29 +29,108 @@ app.post("/api/movie", (req, res) => {
     });
 });
 
-app.get("/api/movie/:movieId", (req, res, next) => {
-    const movieId = req.params.movieId;
-    console.log(`Movie met ID ${movieId} gezocht`);
-    let movie = database.filter((item) => item.id == movieId);
-    if (movie.length > 0) {
-        console.log(movie);
-        res.status(200).json({
-            status: 200,
-            result: movie,
-        });
-    } else {
-        res.status(401).json({
-            status: 401,
-            result: `Movie with ID ${movieId} not found`,
-        });
-    }
-});
-
-app.get("/api/movie", (req, res, next) => {
+//get all users
+app.get("/api/user", (req, res) => {
     res.status(200).json({
         status: 200,
         result: database,
     });
+});
+
+//request your personal user profile
+app.get("/api/user/profile", (req, res) => {
+    res.status(401).json({
+        status: 401,
+        result: "End-point not found",
+    });
+})
+
+//get a single user by id
+app.get("/api/user/:userId", (req, res, next) => {
+    const userId = req.params.userId;
+    if (isNaN(userId)) {
+        next();
+    }
+    let user = database.filter((item) => item.id == userId);
+    if (user.length > 0) {
+        res.status(200).json({
+            status: 200,
+            result: user,
+        });
+    } else {
+        res.status(401).json({
+            status: 401,
+            result: `User with ID ${userId} not found`,
+        });
+    }
+});
+
+//update a single user
+app.put("/api/user/:userId", (req, res, next) => {
+    const userId = req.params.userId;
+    let user = req.body;
+    if (isNaN(userId)) {
+        next();
+    }
+
+    let userToPut = null;
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].id == userId) {
+            userToPut = i;
+            break;
+        }
+    }
+
+    if (userToPut != null) {
+
+        id = parseInt(userId);
+        user = {
+            id,
+            ...user,
+        };
+
+        database.splice(userToPut, 1, user);
+        res.status(201).json({
+            status: 201,
+            result: user,
+        });
+    } else {
+        res.status(401).json({
+            status: 401,
+            result: `User with ID ${userId} not found`,
+        });
+    }
+});
+
+//delete a user
+app.delete("/api/user/:userId", (req, res, next) => {
+    const userId = req.params.userId;
+    if (isNaN(userId)) {
+        next();
+    }
+
+    let userToDelete = null;
+
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].id == userId) {
+            userToDelete = i;
+            break;
+        }
+    }
+
+    if (userToDelete != null) {
+        database.splice(userToDelete, 1);
+        res.status(200).json({
+            status: 200,
+            message: `User with ID ${userId} deleted`,
+        });
+    } else {
+        res.status(401).json({
+            status: 401,
+            message: `User with ID ${userId} not found`,
+        });
+    }
 });
 
 app.all("*", (req, res) => {
