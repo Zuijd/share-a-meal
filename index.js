@@ -35,7 +35,7 @@ app.post("/api/user", (req, res) => {
         database.push(movie);
         res.status(201).json({
             status: 201,
-            result: database,
+            result: movie,
         });
     } else {
         res.status(401).json({
@@ -57,7 +57,7 @@ app.get("/api/user", (req, res) => {
 app.get("/api/user/profile", (req, res) => {
     res.status(401).json({
         status: 401,
-        message: "This functionality is not realised (yet)!",
+        message: "This functionality has not been realised (yet)!",
     });
 })
 
