@@ -1,77 +1,18 @@
 const express = require('express')
 const router = express.Router()
-
-
-let database = [];
-let id = 0;
-
-
-//register as a new user
-router.post("/api/user", (req, res) => {
-    let movie = req.body;
-    let email = req.body.emailAdress;
-    let emailcheck = true;
-
-    for (let i = 0; i < database.length; i++) {
-        if (database[i].emailAdress == email) {
-            emailcheck = false;
-        }
-    }
-
-    if (emailcheck) {
-        id++;
-        movie = {
-            id,
-            ...movie,
-        };
-        database.push(movie);
-        res.status(201).json({
-            status: 201,
-            result: movie,
-        });
-    } else {
-        res.status(401).json({
-            status: 401,
-            message: "This email is already linked to a different account!",
-        })
-    }
-});
+const controller = require('../controllers/user.controller')
 
 //get all users
-router.get("/api/user", (req, res) => {
-    res.status(200).json({
-        status: 200,
-        result: database,
-    });
-});
+router.get("/api/user", controller.getAllUsers);
+
+//register as a new user
+router.post("/api/user", controller.addUser);
 
 //request your personal user profile
-router.get("/api/user/profile", (req, res) => {
-    res.status(401).json({
-        status: 401,
-        message: "This functionality has not been realised (yet)!",
-    });
-})
+router.get("/api/user/profile", controller.getUserProfile)
 
 //get a single user by id
-router.get("/api/user/:userId", (req, res, next) => {
-    const userId = req.params.userId;
-    if (isNaN(userId)) {
-        next();
-    }
-    let user = database.filter((item) => item.id == userId);
-    if (user.length > 0) {
-        res.status(200).json({
-            status: 200,
-            result: user,
-        });
-    } else {
-        res.status(401).json({
-            status: 401,
-            message: `User with ID ${userId} not found`,
-        });
-    }
-});
+router.get("/api/user/:userId", controller.getAllUsers);
 
 //update a single user
 router.put("/api/user/:userId", (req, res, next) => {
