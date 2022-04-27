@@ -6,7 +6,7 @@ const controller = require('../controllers/user.controller')
 router.get("/api/user", controller.getAllUsers);
 
 //register as a new user
-router.post("/api/user", controller.addUser);
+router.post("/api/user", controller.validateUser, controller.addUser);
 
 //request your personal user profile
 router.get("/api/user/profile", controller.getUserProfile)

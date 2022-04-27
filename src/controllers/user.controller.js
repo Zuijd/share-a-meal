@@ -1,9 +1,38 @@
+const assert = require('assert')
+
 let database = [];
 let id = 0;
 
 let controller = {
+    validateUser: (req, res, next) => {
+        let user = req.body;
+        let {
+            id,
+            firstName,
+            lastName,
+            street,
+            city,
+            password,
+            emailAdress
+        } = user;
+        try {
+            assert(typeof firstName === 'string', 'Firstname must be a string')
+            assert(typeof lastName === 'string', 'Lastname must be a string')
+            assert(typeof street === 'string', 'Street must be a string')
+            assert(typeof city === 'string', 'City must be a string')
+            assert(typeof emailAdress === 'string', 'Emailadress must be a string')
+            next();
+        } catch (err) {
+            const error = {
+                status: 400, 
+                result: err.message,
+            };
+            next(error)
+        }
+    },
+
     addUser: (req, res) => {
-        let movie = req.body;
+        let user = req.body;
         let email = req.body.emailAdress;
         let emailcheck = true;
 
@@ -15,14 +44,14 @@ let controller = {
 
         if (emailcheck) {
             id++;
-            movie = {
+            user = {
                 id,
-                ...movie,
+                ...user,
             };
-            database.push(movie);
+            database.push(user);
             res.status(201).json({
                 status: 201,
-                result: movie,
+                result: user,
             });
         } else {
             res.status(401).json({
@@ -51,13 +80,14 @@ let controller = {
                 result: user,
             });
         } else {
-            res.status(401).json({
-                status: 401,
+            const error = {
+                status: 404,
                 message: `User with ID ${userId} not found`,
-            });
+            }
+            next(error);
         }
-    }, 
-    
+    },
+
     getUserProfile: (req, res) => {
         res.status(401).json({
             status: 401,
