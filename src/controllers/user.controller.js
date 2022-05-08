@@ -21,7 +21,8 @@ let controller = {
             assert(typeof lastName === 'string', 'Lastname must be a string')
             assert(typeof street === 'string', 'Street must be a string')
             assert(typeof city === 'string', 'City must be a string')
-            assert(typeof emailAdress === 'string', 'Emailadress must be a string')
+            assert(typeof password === 'string', 'Password must be a string')            
+            assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
             const error = {
