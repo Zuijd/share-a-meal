@@ -27,7 +27,7 @@ let controller = {
                 message: err.message,
             };
 
-            
+
             next(error)
         }
     },
@@ -43,14 +43,20 @@ let controller = {
                 `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
                 function (error, results, fields) {
                     connection.release();
-
+                    
                     if (error) throw error;
 
-                    console.log('#results = ', results.length);
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    });
+                    if (results.affectedRows > 0) {
+                        res.status(201).json({
+                            status: 201,
+                            result: results,
+                        });
+                    } else {
+                        res.status(409).json({
+                            status: 409,
+                            message: "Something went wrong",
+                        });
+                    }
                 });
 
         });
