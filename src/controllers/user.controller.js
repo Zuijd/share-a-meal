@@ -204,7 +204,7 @@ let controller = {
                     if (results[0].count === 0) {
                         res.status(400).json({
                             status: 400,
-                            message: "This user does not exist",
+                            message: "User does not exist",
                         });
                     } else {
                         connection.query(
