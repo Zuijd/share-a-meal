@@ -51,24 +51,26 @@ let controller = {
                             status: 409,
                             message: "User already exist",
                         });
+                    } else {
+                        connection.query(
+                            `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
+                            function (error, results, fields) {
+                                connection.release();
+
+                                if (error) throw error;
+
+                                if (results.affectedRows > 0) {
+                                    res.status(201).json({
+                                        status: 201,
+                                        result: results,
+                                    });
+                                }
+                            });
                     }
                 });
 
 
-            connection.query(
-                `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
-                function (error, results, fields) {
-                    connection.release();
 
-                    if (error) throw error;
-
-                    if (results.affectedRows > 0) {
-                        res.status(201).json({
-                            status: 201,
-                            result: results,
-                        });
-                    }
-                });
         });
     },
 
