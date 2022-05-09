@@ -18,7 +18,7 @@ router.get("/api/user/:userId", controller.userExists, controller.getUserByid);
 router.put("/api/user/:userId", controller.userExists, controller.validateUser, controller.updateUser);
 
 //delete a user
-router.delete("/api/user/:userId", controller.deleteUser);
+router.delete("/api/user/:userId", controller.userExists, controller.deleteUser);
 
 
 
