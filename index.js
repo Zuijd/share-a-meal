@@ -18,12 +18,12 @@ app.all("*", (req, res, next) => {
 app.use(router);
 
 //default error 
-app.all("*", (req, res) => {
-    res.status(401).json({
-        status: 401,
-        message: "End-point not found",
-    });
-});
+// app.all("*", (req, res) => {
+//     res.status(400).json({
+//         status: 400,
+//         message: "End-point not found",
+//     });
+// });
 
 app.use((err, req, res, next) => {
     res.status(err.status).json(err);
