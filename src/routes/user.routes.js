@@ -15,7 +15,7 @@ router.get("/api/user/profile", controller.getUserProfile);
 router.get("/api/user/:userId", controller.getUserByid);
 
 //update a single user
-router.put("/api/user/:userId", controller.updateUser);
+router.put("/api/user/:userId", controller.validateUser, controller.updateUser);
 
 //delete a user
 router.delete("/api/user/:userId", controller.deleteUser);

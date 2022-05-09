@@ -5,7 +5,6 @@ let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
         let {
-            id,
             firstName,
             lastName,
             street,
