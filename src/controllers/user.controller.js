@@ -30,6 +30,7 @@ let controller = {
 
             next(error)
         }
+
     },
 
     addUser: (req, res) => {
@@ -40,10 +41,27 @@ let controller = {
             let user = req.body;
 
             connection.query(
+                'SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ?',
+                user.emailAdress,
+                function (error, results, fields) {
+                    connection.release();
+
+                    if (error) throw error;
+
+                    if (results[0].count > 0) {
+                        res.status(409).json({
+                            status: 409,
+                            message: "This email is already taken",
+                        });
+                    }
+                });
+
+
+            connection.query(
                 `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
                 function (error, results, fields) {
                     connection.release();
-                    
+
                     if (error) throw error;
 
                     if (results.affectedRows > 0) {
@@ -51,14 +69,8 @@ let controller = {
                             status: 201,
                             result: results,
                         });
-                    } else {
-                        res.status(409).json({
-                            status: 409,
-                            message: "Something went wrong",
-                        });
                     }
                 });
-
         });
     },
 
