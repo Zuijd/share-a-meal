@@ -19,8 +19,8 @@ app.use(router);
 
 //default error 
 app.all("*", (req, res) => {
-    res.status(401).json({
-        status: 401,
+    res.status(404).json({
+        status: 404,
         message: "End-point not found",
     });
 });

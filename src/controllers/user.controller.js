@@ -24,7 +24,7 @@ let controller = {
         } catch (err) {
             const error = {
                 status: 401,
-                result: err.message,
+                message: err.message,
             };
             next(error)
         }
