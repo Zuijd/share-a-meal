@@ -12,13 +12,13 @@ router.post("/api/user", controller.validateUser, controller.addUser);
 router.get("/api/user/profile", controller.getUserProfile);
 
 //get a single user by id
-router.get("/api/user/:userId", controller.userExists, controller.getUserByid);
+router.get("/api/user/:userId", controller.getUserByid);
 
 //update a single user
-router.put("/api/user/:userId", controller.userExists, controller.validateUser, controller.updateUser);
+router.put("/api/user/:userId", controller.validateUser, controller.updateUser);
 
 //delete a user
-router.delete("/api/user/:userId", controller.userExists, controller.deleteUser);
+router.delete("/api/user/:userId", controller.deleteUser);
 
 
 

@@ -32,23 +32,6 @@ let controller = {
 
     },
 
-    userExists: (req, res, next) => {
-        connection.query(
-            'SELECT COUNT(id) as count FROM user WHERE id = ?',
-            req.params.userId,
-            function (error, results, fields) {
-
-                if (error) throw error;
-
-                if (results[0].count === 0) {
-                    res.status(404).json({
-                        status: 404,
-                        message: "This user does not exist",
-                    });
-                }
-            });
-    },
-
     addUser: (req, res) => {
 
         dbconnection.getConnection(function (err, connection) {
@@ -60,7 +43,6 @@ let controller = {
                 'SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ?',
                 user.emailAdress,
                 function (error, results, fields) {
-                    connection.release();
 
                     if (error) throw error;
 
@@ -107,7 +89,6 @@ let controller = {
                         result: results,
                     });
                 });
-
         });
     },
 
@@ -118,20 +99,37 @@ let controller = {
 
             const userId = req.params.userId;
 
-
             connection.query(
-                'SELECT * FROM `user` WHERE `id` = ' + userId + '',
+                'SELECT COUNT(id) as count FROM user WHERE id = ?',
+                userId,
                 function (error, results, fields) {
-                    connection.release();
 
                     if (error) throw error;
 
-                    console.log('#results = ', results.length);
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    });
+                    if (results[0].count === 0) {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This user does not exist",
+                        });
+                    } else {
+                        connection.query(
+                            'SELECT * FROM `user` WHERE `id` = ' + userId + '',
+                            function (error, results, fields) {
+                                connection.release();
+
+                                if (error) throw error;
+
+                                console.log('#results = ', results.length);
+                                res.status(200).json({
+                                    status: 200,
+                                    result: results,
+                                });
+                            });
+                    }
                 });
+
+
+
 
         });
     },
@@ -143,7 +141,7 @@ let controller = {
         });
     },
 
-    updateUser: (req, res) => {
+    updateUser: (req, res, next) => {
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
@@ -151,21 +149,38 @@ let controller = {
             let user = req.body;
             const userId = req.params.userId;
 
-
-            // Use the connection
             connection.query(
-                `UPDATE user SET firstname = '${user.firstName}', lastname = '${user.lastName}', street = '${user.street}', city = '${user.city}', password = '${user.password}', emailAdress = '${user.emailAdress}' WHERE id = '${userId}'`,
+                'SELECT COUNT(id) as count FROM user WHERE id = ?',
+                userId,
                 function (error, results, fields) {
-                    connection.release();
 
                     if (error) throw error;
 
-                    console.log('#results = ', results.length);
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    });
+                    if (results[0].count === 0) {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This user does not exist",
+                        });
+                    } else {
+                        // Use the connection
+                        connection.query(
+                            `UPDATE user SET firstname = '${user.firstName}', lastname = '${user.lastName}', street = '${user.street}', city = '${user.city}', password = '${user.password}', emailAdress = '${user.emailAdress}' WHERE id = '${userId}'`,
+                            function (error, results, fields) {
+                                connection.release();
+
+                                if (error) throw error;
+
+                                console.log('#results = ', results.length);
+                                res.status(200).json({
+                                    status: 200,
+                                    result: results,
+                                });
+                            });
+                    }
                 });
+
+
+
 
         });
     },
@@ -178,18 +193,35 @@ let controller = {
             const userId = req.params.userId;
 
             connection.query(
-                `DELETE FROM user WHERE id = '${userId}'`,
+                'SELECT COUNT(id) as count FROM user WHERE id = ?',
+                userId,
                 function (error, results, fields) {
-                    connection.release();
 
                     if (error) throw error;
 
-                    console.log('#results = ', results.length);
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    });
+                    if (results[0].count === 0) {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This user does not exist",
+                        });
+                    } else {
+                        connection.query(
+                            `DELETE FROM user WHERE id = '${userId}'`,
+                            function (error, results, fields) {
+                                connection.release();
+
+                                if (error) throw error;
+
+                                console.log('#results = ', results.length);
+                                res.status(200).json({
+                                    status: 200,
+                                    result: results,
+                                });
+                            });
+                    }
                 });
+
+
 
         });
     },
