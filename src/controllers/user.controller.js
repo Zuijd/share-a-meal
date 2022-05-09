@@ -1,9 +1,6 @@
 const assert = require('assert')
 const dbconnection = require('../../database/dbconnection')
 
-let database = [];
-let id = 0;
-
 let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
@@ -21,7 +18,7 @@ let controller = {
             assert(typeof lastName === 'string', 'Lastname must be a string')
             assert(typeof street === 'string', 'Street must be a string')
             assert(typeof city === 'string', 'City must be a string')
-            assert(typeof password === 'string', 'Password must be a string')            
+            assert(typeof password === 'string', 'Password must be a string')
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
@@ -34,53 +31,43 @@ let controller = {
     },
 
     addUser: (req, res) => {
-        let user = req.body;
-        let email = req.body.emailAdress;
-        let emailcheck = true;
 
-        for (let i = 0; i < database.length; i++) {
-            if (database[i].emailAdress == email) {
-                emailcheck = false;
-            }
-        }
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err;
 
-        if (emailcheck) {
-            id++;
-            user = {
-                id,
-                ...user,
-            };
-            database.push(user);
-            res.status(201).json({
-                status: 201,
-                result: user,
-            });
-        } else {
-            res.status(401).json({
-                status: 401,
-                message: "This email is already linked to a different account!",
-            })
-        }
+            let user = req.body;
+
+            connection.query(
+                `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
+                function (error, results, fields) {
+                    connection.release();
+
+                    if (error) throw error;
+
+                    console.log('#results = ', results.length);
+                    res.status(200).json({
+                        status: 200,
+                        result: results,
+                    });
+                });
+
+        });
     },
 
     getAllUsers: (req, res) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
+            if (err) throw err;
 
-            // Use the connection
             connection.query(
                 'SELECT * FROM user',
                 function (error, results, fields) {
-                    // When done with the connection, release it.
                     connection.release();
 
-                    // Handle error after the release.
                     if (error) throw error;
 
-                    // Don't use the connection here, it has been returned to the dbconnection.
                     console.log('#results = ', results.length);
                     res.status(200).json({
-                        status: 200, 
+                        status: 200,
                         result: results,
                     });
                 });
@@ -89,23 +76,26 @@ let controller = {
     },
 
     getUserByid: (req, res) => {
-        const userId = req.params.userId;
-        if (isNaN(userId)) {
-            next();
-        }
-        let user = database.filter((item) => item.id == userId);
-        if (user.length > 0) {
-            res.status(200).json({
-                status: 200,
-                result: user,
-            });
-        } else {
-            const error = {
-                status: 404,
-                message: `User with ID ${userId} not found`,
-            }
-            next(error);
-        }
+
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err;
+
+            const userId = req.params.userId;
+            connection.query(
+                'SELECT * FROM `user` WHERE `id` = ' + userId + '',
+                function (error, results, fields) {
+                    connection.release();
+
+                    if (error) throw error;
+
+                    console.log('#results = ', results.length);
+                    res.status(200).json({
+                        status: 200,
+                        result: results,
+                    });
+                });
+
+        });
     },
 
     getUserProfile: (req, res) => {
@@ -113,7 +103,58 @@ let controller = {
             status: 401,
             message: "This functionality has not been realised (yet)!",
         });
-    }
+    },
+
+    updateUser: (req, res) => {
+
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err;
+
+            let user = req.body;
+            const userId = req.params.userId;
+
+
+            // Use the connection
+            connection.query(
+                `UPDATE user SET firstname = '${user.firstName}', lastname = '${user.lastName}', street = '${user.street}', city = '${user.city}', password = '${user.password}', emailAdress = '${user.emailAdress}' WHERE id = '${userId}'`,
+                function (error, results, fields) {
+                    connection.release();
+
+                    if (error) throw error;
+
+                    console.log('#results = ', results.length);
+                    res.status(200).json({
+                        status: 200,
+                        result: results,
+                    });
+                });
+
+        });
+    },
+
+    deleteUser: (req, res) => {
+
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err;
+
+            const userId = req.params.userId;
+
+            connection.query(
+                `DELETE FROM user WHERE id = '${userId}'`,
+                function (error, results, fields) {
+                    connection.release();
+
+                    if (error) throw error;
+
+                    console.log('#results = ', results.length);
+                    res.status(200).json({
+                        status: 200,
+                        result: results,
+                    });
+                });
+
+        });
+    },
 
 }
 
