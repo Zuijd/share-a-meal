@@ -51,7 +51,7 @@ let controller = {
                     if (results[0].count > 0) {
                         res.status(409).json({
                             status: 409,
-                            message: "This email is already taken",
+                            message: "User already exist",
                         });
                     }
                 });
@@ -101,6 +101,23 @@ let controller = {
             if (err) throw err;
 
             const userId = req.params.userId;
+
+            connection.query(
+                'SELECT COUNT(id) as count FROM user WHERE id = ?',
+                userId,
+                function (error, results, fields) {
+
+                    if (error) throw error;
+
+                    if (results[0].count === 0) {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This user does not exist",
+                        });
+                    }
+                });
+
+            
             connection.query(
                 'SELECT * FROM `user` WHERE `id` = ' + userId + '',
                 function (error, results, fields) {
