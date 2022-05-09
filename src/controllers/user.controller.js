@@ -62,7 +62,7 @@ let controller = {
                                 if (results.affectedRows > 0) {
                                     res.status(201).json({
                                         status: 201,
-                                        result: results,
+                                        result: user,
                                     });
                                 }
                             });
