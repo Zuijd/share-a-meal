@@ -22,11 +22,13 @@ let controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
-            res.status(400).json({
-                status: 400,
+            const error = {
+                status: 401,
                 result: err.message,
-            });
-            next();
+            };
+
+            
+            next(error)
         }
     },
 
