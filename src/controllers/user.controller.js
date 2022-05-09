@@ -32,6 +32,23 @@ let controller = {
 
     },
 
+    userExists: (req, res, next) => {
+        connection.query(
+            'SELECT COUNT(id) as count FROM user WHERE id = ?',
+            req.params.userId,
+            function (error, results, fields) {
+
+                if (error) throw error;
+
+                if (results[0].count === 0) {
+                    res.status(404).json({
+                        status: 404,
+                        message: "This user does not exist",
+                    });
+                }
+            });
+    },
+
     addUser: (req, res) => {
 
         dbconnection.getConnection(function (err, connection) {
@@ -101,22 +118,7 @@ let controller = {
 
             const userId = req.params.userId;
 
-            connection.query(
-                'SELECT COUNT(id) as count FROM user WHERE id = ?',
-                userId,
-                function (error, results, fields) {
 
-                    if (error) throw error;
-
-                    if (results[0].count === 0) {
-                        res.status(404).json({
-                            status: 404,
-                            message: "This user does not exist",
-                        });
-                    }
-                });
-
-            
             connection.query(
                 'SELECT * FROM `user` WHERE `id` = ' + userId + '',
                 function (error, results, fields) {
