@@ -185,8 +185,8 @@ let controller = {
                     if (error) throw error;
 
                     if (results[0].count === 0) {
-                        res.status(404).json({
-                            status: 404,
+                        res.status(400).json({
+                            status: 400,
                             message: "This user does not exist",
                         });
                     } else {
