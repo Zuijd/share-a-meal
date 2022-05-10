@@ -59,6 +59,11 @@ let controller = {
 
                                 if (error) throw error;
 
+                                user = {
+                                    "id": results.insertId,
+                                    ...user,
+                                }
+
                                 if (results.affectedRows > 0) {
                                     res.status(201).json({
                                         status: 201,
