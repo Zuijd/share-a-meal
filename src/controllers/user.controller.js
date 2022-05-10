@@ -210,14 +210,9 @@ let controller = {
                                             if (error) throw error;
 
                                             let newUser = {
+                                                ...results[0],
                                                 ...user,
-                                                ...results,
                                             }
-
-                                            console.log(111);
-                                            console.log(newUser);
-                                            console.log(user);
-                                            console.log(results);
 
                                             connection.query(
                                                 `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${newUser.isActive}' WHERE id = '${userId}'`,
