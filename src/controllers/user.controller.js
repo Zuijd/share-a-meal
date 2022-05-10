@@ -178,7 +178,7 @@ let controller = {
             const userId = req.params.userId;
 
             connection.query(
-                'SELECT COUNT(id) as count FROM user WHERE id = ?',
+                `SELECT COUNT(id) as count FROM user WHERE id = ?`,
                 userId,
                 function (error, results, fields) {
 
