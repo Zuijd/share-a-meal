@@ -32,6 +32,26 @@ let controller = {
 
     },
 
+    checkMail: (req, res, next) => {
+        let user = req.body;
+        let {
+            emailAdress
+        } = user;
+        try {
+            assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
+            next();
+        } catch (err) {
+            const error = {
+                status: 400,
+                message: err.message,
+            };
+
+
+            next(error)
+        }
+
+    },
+
     addUser: (req, res) => {
 
         dbconnection.getConnection(function (err, connection) {
