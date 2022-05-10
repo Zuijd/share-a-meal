@@ -113,6 +113,7 @@ let controller = {
 
                     if (error) throw error;
 
+
                     if (results[0].count === 0) {
                         res.status(404).json({
                             status: 404,
@@ -129,7 +130,7 @@ let controller = {
                                 console.log('#results = ', results.length);
                                 res.status(200).json({
                                     status: 200,
-                                    result: results,
+                                    result: results[0],
                                 });
                             });
                     }
