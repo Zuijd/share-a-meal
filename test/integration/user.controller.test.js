@@ -149,14 +149,13 @@ describe('UC-2 Manage users /api/user', () => {
                     city: "City",
                     emailAdress: "new@User.com",
                     password: "newUser123",
+                    isActive: 1, 
+                    phoneNumber: "0786120504"
                 })
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(201)
                     res.should.be.an('object')
-
-
-
                     res.body.should.be
                         .an('object')
                         .that.has.all.keys('status', 'result')
@@ -166,12 +165,15 @@ describe('UC-2 Manage users /api/user', () => {
                         result
                     } = res.body
                     status.should.be.a('number')
+                    result.should.have.property('id').and.to.be.a('number')
                     result.should.have.property('firstName').and.to.be.a('string')
                     result.should.have.property('lastName').and.to.be.a('string')
                     result.should.have.property('street').and.to.be.a('string')
                     result.should.have.property('city').and.to.be.a('string')
                     result.should.have.property('emailAdress').and.to.be.a('string')
                     result.should.have.property('password').and.to.be.a('string')
+                    result.should.have.property('isActive').and.to.be.a('number')
+                    result.should.have.property('phoneNumber').and.to.be.a('string')
                     createdUserId = result.id
                     done()
                 })
@@ -219,12 +221,15 @@ describe('UC-2 Manage users /api/user', () => {
                         result
                     } = res.body
                     status.should.be.a('number')
+                    result.should.have.property('id').and.to.be.a('number')
                     result.should.have.property('firstName').and.to.be.a('string')
                     result.should.have.property('lastName').and.to.be.a('string')
                     result.should.have.property('street').and.to.be.a('string')
                     result.should.have.property('city').and.to.be.a('string')
                     result.should.have.property('emailAdress').and.to.be.a('string')
                     result.should.have.property('password').and.to.be.a('string')
+                    result.should.have.property('isActive').and.to.be.a('number')
+                    result.should.have.property('phoneNumber').and.to.be.a('string')
                     done()
                 })
         })
@@ -313,12 +318,15 @@ describe('UC-2 Manage users /api/user', () => {
                         result
                     } = res.body
                     status.should.be.a('number')
+                    result.should.have.property('id').and.to.be.a('number')
                     result.should.have.property('firstName').and.to.be.a('string')
                     result.should.have.property('lastName').and.to.be.a('string')
                     result.should.have.property('street').and.to.be.a('string')
                     result.should.have.property('city').and.to.be.a('string')
                     result.should.have.property('emailAdress').and.to.be.a('string')
                     result.should.have.property('password').and.to.be.a('string')
+                    result.should.have.property('isActive').and.to.be.a('number')
+                    result.should.have.property('phoneNumber').and.to.be.a('string')
                     done()
                 })
         })
