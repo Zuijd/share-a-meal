@@ -214,8 +214,16 @@ let controller = {
                                                 ...user,
                                             }
 
+                                            let isActiveNum;
+
+                                            if (newUser === true) {
+                                                isActiveNum = 1;
+                                            } else {
+                                                isActiveNum = 0;
+                                            }
+
                                             connection.query(
-                                                `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${newUser.isActive}' WHERE id = '${userId}'`,
+                                                `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${isActiveNum}' WHERE id = '${userId}'`,
                                                 function (error, results, fields) {
                                                     connection.release();
 
