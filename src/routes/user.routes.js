@@ -1,26 +1,26 @@
 const express = require('express')
-const router = express.Router()
-const controller = require('../controllers/user.controller')
+const userRouter = express.Router()
+const userController = require('../controllers/user.controller')
 
 //get all users
-router.get("/api/user", controller.getAllUsers);
+userRouter.get("/api/user", userController.getAllUsers);
 
 //register as a new user
-router.post("/api/user", controller.validateUser, controller.addUser);
+userRouter.post("/api/user", userController.validateUser, userController.addUser);
 
 //request your personal user profile
-router.get("/api/user/profile", controller.getUserProfile);
+userRouter.get("/api/user/profile", userController.getUserProfile);
 
 //get a single user by id
-router.get("/api/user/:userId", controller.getUserByid);
+userRouter.get("/api/user/:userId", userController.getUserByid);
 
 //update a single user
-router.put("/api/user/:userId", controller.checkMail, controller.updateUser);
+userRouter.put("/api/user/:userId", userController.checkMail, userController.updateUser);
 
 //delete a user
-router.delete("/api/user/:userId", controller.deleteUser);
+userRouter.delete("/api/user/:userId", userController.deleteUser);
 
 
 
 
-module.exports = router
+module.exports = userRouter

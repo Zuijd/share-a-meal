@@ -4,7 +4,8 @@ require('dotenv').config()
 
 const port = process.env.PORT;
 const bodyParser = require("body-parser");
-const router = require("./src/routes/user.routes");
+const userRouter = require("./src/routes/user.routes");
+const mealsRouter = require("./src/routes/meal.routes");
 
 
 app.use(bodyParser.json());
@@ -15,15 +16,15 @@ app.all("*", (req, res, next) => {
     next();
 });
 
-app.use(router);
+app.use(userRouter);
+app.use(mealsRouter);
 
-//default error 
-// app.all("*", (req, res) => {
-//     res.status(404).json({
-//         status: 404,
-//         message: "End-point not found",
-//     });
-// });
+app.all("*", (req, res) => {
+    res.status(404).json({
+        status: 404,
+        message: "End-point not found",
+    });
+});
 
 app.use((err, req, res, next) => {
     res.status(err.status).json(err);
