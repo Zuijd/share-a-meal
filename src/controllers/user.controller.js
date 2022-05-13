@@ -99,18 +99,42 @@ let controller = {
         });
     },
 
-    getAllUsers: (req, res) => {
-        dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+    getAllUsers: (req, res, next) => {
 
-            connection.query(
-                'SELECT * FROM user',
-                function (error, results, fields) {
+        let getUsersQuery = `SELECT * FROM user`;
+        let {firstName, isActive} = req.query;
+        let varsToAddToQuery = [];
+        
+        if (firstName || isActive) {
+            getUsersQuery += ` WHERE `;
+            if (firstName) {
+                getUsersQuery += `firstName LIKE ?`;
+                firstName += '%';
+                varsToAddToQuery.push(firstName);
+            }
+            if (firstName && isActive) {
+                getUsersQuery += ` AND `;
+            }
+            if (isActive) {
+                getUsersQuery += `isActive = ?`;
+                varsToAddToQuery.push(isActive);
+            }
+        }
+
+        dbconnection.getConnection(function (err, connection) {
+            if (err){
+                next(err);
+            }
+
+            
+
+            connection.query(getUsersQuery, varsToAddToQuery, (error, results, fields) => {
                     connection.release();
 
-                    if (error) throw error;
+                    if (error){
+                        next(error);
+                    }
 
-                    console.log('#results = ', results.length);
                     res.status(200).json({
                         status: 200,
                         result: results,
