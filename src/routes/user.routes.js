@@ -7,10 +7,10 @@ const authController = require('../controllers/auth.controller')
 userRouter.get("/api/user", userController.getAllUsers);
 
 //register as a new user
-userRouter.post("/api/user", userController.validateUser, userController.addUser);
+userRouter.post("/api/user", userController.validateUser, userController.validateEmail, userController.addUser);
 
 //request your personal user profile
-userRouter.get("/api/user/profile", userController.getUserProfile);
+userRouter.get("/api/user/profile", authController.validateToken, userController.getUserProfile);
 
 //get a single user by id
 userRouter.get("/api/user/:userId", userController.getUserByid);

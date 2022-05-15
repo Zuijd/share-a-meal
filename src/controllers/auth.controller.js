@@ -43,11 +43,31 @@ const controller = {
                 }
             });
         });
-    }, 
+    },
 
     validateToken: (req, res, next) => {
-        const token = req.header;
-        console.log(token);
+        const authHeader = req.headers.authorization
+        if (authHeader) {
+            const token = authHeader.substring(7, authHeader.length)
+
+            jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+                if (err) {
+                    res.status(401).json({
+                        status: 401,
+                        message: "Unauthorized"
+                    })
+                }
+                if (payload) {
+                    req.userId = payload.userId
+                    next()
+                }
+            })
+        } else {
+            res.status(401).json({
+                status: 401,
+                message: "Authorization header is missing"
+            })
+        }
     }
 }
 

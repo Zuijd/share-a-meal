@@ -1,5 +1,6 @@
 const assert = require('assert')
 const dbconnection = require('../../database/dbconnection')
+var Regex = require('regex');
 
 let controller = {
     validateUser: (req, res, next) => {
@@ -30,6 +31,21 @@ let controller = {
             next(error)
         }
 
+    },
+
+    validateEmail: (req, res, next) => {
+        // var regex = /(([a-z]+)\.?([a-z]*))*@([a-z]+)\.(\w{2,})/;
+        var regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+        const email = req.body.emailAdress
+        console.log(regex.test(email));
+        if (regex.test(email)) {
+            next();
+        } else {
+            res.status(401).json({
+                status: 401,
+                message: "Invalid emailAdress"
+            })
+        }
     },
 
     checkMail: (req, res, next) => {
@@ -102,9 +118,12 @@ let controller = {
     getAllUsers: (req, res, next) => {
 
         let getUsersQuery = `SELECT * FROM user`;
-        let {firstName, isActive} = req.query;
+        let {
+            firstName,
+            isActive
+        } = req.query;
         let varsToAddToQuery = [];
-        
+
         if (firstName || isActive) {
             getUsersQuery += ` WHERE `;
             if (firstName) {
@@ -122,24 +141,24 @@ let controller = {
         }
 
         dbconnection.getConnection(function (err, connection) {
-            if (err){
+            if (err) {
                 next(err);
             }
 
-            
+
 
             connection.query(getUsersQuery, varsToAddToQuery, (error, results, fields) => {
-                    connection.release();
+                connection.release();
 
-                    if (error){
-                        next(error);
-                    }
+                if (error) {
+                    next(error);
+                }
 
-                    res.status(200).json({
-                        status: 200,
-                        result: results,
-                    });
+                res.status(200).json({
+                    status: 200,
+                    result: results,
                 });
+            });
         });
     },
 
