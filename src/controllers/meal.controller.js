@@ -1,5 +1,6 @@
 const assert = require('assert')
 const dbconnection = require('../../database/dbconnection')
+const jwt = require('jsonwebtoken');
 
 
 let controller = {
@@ -24,28 +25,95 @@ let controller = {
 
     addMeal: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             const meal = req.body;
-            const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const mealToAdd = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, meal.name, meal.description];
+            const allergenes = req.body.allergenes
+            let allergenesArray = [];
+            let allergenesString = "";
+
+            allergenes.forEach(element => {
+                if (element === "gluten" || element === "noten" || element == "lactose") {
+                    if (!(allergenesArray.includes(element))) {
+                        allergenesArray.push(element);
+                        allergenesString += element + ",";
+                    }
+                }
+            });
+            allergenesString = allergenesString.slice(0, -1);
+
+            const authHeader = req.headers.authorization
+            const token = authHeader.substring(7, authHeader.length);
+            let cookId;
+
+            jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                cookId = decoded.userId;
+            });
+
+            const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const mealToAdd = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, meal.name, meal.description, allergenesString, cookId];
+
+
 
             connection.query(addMealSql, mealToAdd, (error, results, fields) => {
                 connection.release();
+                if (error) next(error);
 
-                if (error) throw error;
+                const mealId = results.insertId;
 
-                mealFullData = {
-                    "id": results.insertId,
-                    ...meal,
-                }
+                const userInfoQuery = `SELECT * FROM user WHERE id = ?`
 
-                if (results.affectedRows > 0) {
-                    res.status(201).json({
-                        status: 201,
-                        result: mealFullData,
+                connection.query(userInfoQuery, cookId, (error, results, fields) => {
+                    connection.release();
+                    if (error) next(error);
+
+                    const cookInfo = results[0];
+
+
+                    const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
+
+                    connection.query(addParticpantQuery, [mealId, cookId], (error, results, fields) => {
+                        connection.release();
+                        if (error) next(error);
+
+                        const getParticipantsQuery = `SELECT * FROM meal_participants_user WHERE mealId = ?`;
+
+                        connection.query(getParticipantsQuery, mealId, (error, results, fields) => {
+                            connection.release();
+                            if (error) next(error);
+
+                            let participantIds = [];
+
+                            results.forEach(element => {
+                                var i = 0;
+                                participantIds.push(results[i].userId);
+                                i++;
+                            });
+
+                            let participants = [];
+                            participantIds.forEach(element => {
+                                connection.query(userInfoQuery, element, (error, results, fields) => {
+                                    connection.release();
+                                    if (error) next(error);
+                                    participants.push(results[0]);
+
+                                    mealFullData = {
+                                        "id": mealId,
+                                        ...meal,
+                                        "cook": cookInfo,
+                                        "participants": participants
+
+                                    }
+
+                                    res.status(201).json({
+                                        status: 201,
+                                        result: mealFullData,
+                                    });
+                                })
+                            });
+                        });
                     });
-                }
+                });
             });
         })
     },

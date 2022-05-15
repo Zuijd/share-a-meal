@@ -27,7 +27,7 @@ const controller = {
                                 userId: user.id
                             },
                             process.env.JWT_SECRET, {
-                                expiresIn: '24h'
+                                expiresIn: '100d'
                             },
                             function (err, token) {
                                 if (token) {
