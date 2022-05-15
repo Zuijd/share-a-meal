@@ -85,9 +85,7 @@ let controller = {
                             let participantIds = [];
 
                             results.forEach(element => {
-                                var i = 0;
-                                participantIds.push(results[i].userId);
-                                i++;
+                                participantIds.push(element.userId);
                             });
 
                             let participants = [];
@@ -102,7 +100,6 @@ let controller = {
                                         ...meal,
                                         "cook": cookInfo,
                                         "participants": participants
-
                                     }
 
                                     res.status(201).json({
