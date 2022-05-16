@@ -7,16 +7,27 @@ const authController = require('../controllers/auth.controller')
 router.get("/api/meal", controller.getAllMeals);
 
 //register meal
-router.post("/api/meal", authController.validateToken, controller.addMeal);
+router.post("/api/meal",
+    authController.validateToken,
+    controller.addMeal
+);
 
 //get a single meal by id
 router.get("/api/meal/:mealId", controller.getMealById);
 
 //update a single meal
-router.put("/api/meal/:mealId", controller.updateMeal);
+router.put("/api/meal/:mealId",
+    authController.validateToken,
+    authController.checkUserRights,
+    controller.updateMeal
+);
 
 //delete meal
-router.delete("/api/meal/:mealId", controller.deleteMeal);
+router.delete("/api/meal/:mealId",
+    authController.validateToken,
+    authController.checkUserRights,
+    controller.deleteMeal
+);
 
 //participate in a meal
 router.get("/api/meal/:mealId/participate");

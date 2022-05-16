@@ -146,7 +146,7 @@ let controller = {
 
     updateMeal: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (error) next(error);
+            if (err) next(err);
 
             const meal = req.body;
             const mealId = req.params.mealId;
@@ -155,102 +155,44 @@ let controller = {
             }
 
             connection.query(getMealByIdSql, mealId, (error, results, fields) => {
-
+                connection.release();
                 if (error) next(error);
 
-                if (results[0]) {
-                    const cookId = results[0].cookId;
-
-                    const authHeader = req.headers.authorization
-                    const token = authHeader.substring(7, authHeader.length);
-                    let userId;
-
-                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
-                        userId = decoded.userId;
-                    });
-
-                    if (userId === cookId) {
-                        let newMeal = {
-                            ...results[0],
-                            ...meal,
-                        }
-
-                        const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
-
-                        connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
-                            connection.release();
-
-                            if (error) next(error);
-
-                            res.status(200).json({
-                                status: 200,
-                                result: newMeal,
-                            });
-                        });
-                    } else {
-                        res.status(401).json({
-                            status: 401,
-                            message: "You are not the owner of this meal"
-                        });
-                    }
-
-                } else {
-                    res.status(401).json({
-                        status: 401,
-                        message: "This meal does not exist"
-                    });
+                let newMeal = {
+                    ...results[0],
+                    ...meal,
                 }
 
+                const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+
+                connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
+                    connection.release();
+                    if (error) next(error);
+
+                    res.status(200).json({
+                        status: 200,
+                        result: newMeal,
+                    });
+                });
             });
         });
     },
 
     deleteMeal: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
+            connection.release();
             if (err) next(err);
 
             const mealId = req.params.mealId;
 
-            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
+            connection.query(deleteMealQuery, mealId, (error, results, fields) => {
                 connection.release();
                 if (error) next(error);
 
-                if (results[0]) {
-
-                    const cookId = results[0].cookId;
-
-                    const authHeader = req.headers.authorization
-                    const token = authHeader.substring(7, authHeader.length);
-                    let userId;
-
-                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
-                        userId = decoded.userId;
-                    });
-
-                    if (userId === cookId) {
-                        connection.query(deleteMealQuery, mealId, (error, results, fields) => {
-                            connection.release();
-                            if (error) next(error);
-
-                            res.status(200).json({
-                                status: 200,
-                                message: "Meal succesfully deleted",
-                            });
-                        });
-                    } else {
-                        res.status(401).json({
-                            status: 401, 
-                            message: "You are not the owner of this meal"
-                        })
-                    }
-                } else {
-                    res.status(401).json({
-                        status: 401,
-                        message: "This meal does not exist"
-                    })
-                }
-
-
+                res.status(200).json({
+                    status: 200,
+                    message: "Meal succesfully deleted",
+                });
             });
         });
     }

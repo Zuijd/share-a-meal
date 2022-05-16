@@ -2,6 +2,9 @@ const dbconnection = require('../../database/dbconnection');
 const assert = require('assert');
 const jwt = require('jsonwebtoken');
 
+const loginQuery = `SELECT id, firstName, lastName, emailAdress, password FROM user WHERE emailAdress = ?`;
+const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
+
 
 const controller = {
     login: (req, res, next) => {
@@ -10,14 +13,12 @@ const controller = {
             password,
         } = req.body;
 
-        const queryString = `SELECT id, firstName, lastName, emailAdress, password FROM user WHERE emailAdress = ?`;
 
         dbconnection.getConnection(function (err, connection) {
             if (err) next(err);
 
-            connection.query(queryString, emailAdress, (error, results, fields) => {
+            connection.query(loginQuery, emailAdress, (error, results, fields) => {
                 connection.release();
-
                 if (error) next(error);
 
                 if (results) {
@@ -68,7 +69,50 @@ const controller = {
                 message: "Authorization header is missing"
             })
         }
+    },
+
+    checkUserRights: (req, res, next) => {
+        dbconnection.getConnection(function (err, connection) {
+            if (err) next(err);
+
+            const mealId = req.params.mealId;
+
+            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                if (results[0]) {
+                    const cookId = results[0].cookId;
+
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+                    let userId;
+
+                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                        userId = decoded.userId;
+                    });
+
+                    if (userId === cookId) {
+                        next();
+                    } else {
+                        res.status(401).json({
+                            status: 401,
+                            message: "You are not the owner of this meal"
+                        });
+                    }
+
+                } else {
+                    res.status(401).json({
+                        status: 401,
+                        message: "This meal does not exist"
+                    });
+                }
+
+            });
+        })
     }
+
+
 }
 
 module.exports = controller;
