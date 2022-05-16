@@ -2,13 +2,22 @@ const assert = require('assert')
 const dbconnection = require('../../database/dbconnection')
 const jwt = require('jsonwebtoken');
 
+//queries
+const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+const userInfoQuery = `SELECT * FROM user WHERE id = ?`
+const getAllMealsSql = `SELECT * FROM meal`
+const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
+const getParticipantsQuery = `SELECT * FROM meal_participants_user WHERE mealId = ?`;
+const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
+const deleteMealQuery = `DELETE FROM meal WHERE id = ?`;
+const updateMealSql = `UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?`;
 
 let controller = {
     getAllMeals: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
 
-            const getAllMealsSql = `SELECT * FROM meal`
+
 
             connection.query(getAllMealsSql, (error, results, fields) => {
                 connection.release();
@@ -50,7 +59,7 @@ let controller = {
                 cookId = decoded.userId;
             });
 
-            const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
             const mealToAdd = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, meal.name, meal.description, allergenesString, cookId];
 
 
@@ -61,7 +70,7 @@ let controller = {
 
                 const mealId = results.insertId;
 
-                const userInfoQuery = `SELECT * FROM user WHERE id = ?`
+
 
                 connection.query(userInfoQuery, cookId, (error, results, fields) => {
                     connection.release();
@@ -69,14 +78,9 @@ let controller = {
 
                     const cookInfo = results[0];
 
-
-                    const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
-
                     connection.query(addParticpantQuery, [mealId, cookId], (error, results, fields) => {
                         connection.release();
                         if (error) next(error);
-
-                        const getParticipantsQuery = `SELECT * FROM meal_participants_user WHERE mealId = ?`;
 
                         connection.query(getParticipantsQuery, mealId, (error, results, fields) => {
                             connection.release();
@@ -123,7 +127,6 @@ let controller = {
             if (isNaN(mealId)) {
                 next();
             }
-            const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
 
             connection.query(getMealByIdSql, mealId, (error, results, fields) => {
                 connection.release();
@@ -146,30 +149,54 @@ let controller = {
             if (isNaN(mealId)) {
                 next();
             }
-            const getMealToUpdateSql = `SELECT * FROM meal WHERE id = ?`;
-            const updateMealSql = `UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?`;
 
-            connection.query(getMealToUpdateSql, mealId, (error, results, fields) => {
+            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
 
                 if (error) throw error;
 
-                let newMeal = {
-                    ...results[0],
-                    ...meal,
-                }
+                if (results[0]) {
+                const cookId = results[0].cookId;
 
-                const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+                const authHeader = req.headers.authorization
+                const token = authHeader.substring(7, authHeader.length);
+                let userId;
 
-                connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
-                    connection.release();
-
-                    if (error) throw error;
-
-                    res.status(200).json({
-                        status: 200,
-                        result: newMeal,
-                    });
+                jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                    userId = decoded.userId;
                 });
+
+                if (userId === cookId) {
+                    let newMeal = {
+                        ...results[0],
+                        ...meal,
+                    }
+
+                    const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+
+                    connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
+                        connection.release();
+
+                        if (error) throw error;
+
+                        res.status(200).json({
+                            status: 200,
+                            result: newMeal,
+                        });
+                    });
+                } else {
+                    res.status(401).json({
+                        status: 401, 
+                        message: "U are not the owner of this meal"
+                    });
+                }
+                    
+            } else {
+                res.status(401).json({
+                    status: 401, 
+                    message: "This meal does not exist"
+                });
+            }
+
             });
         });
     },
@@ -179,7 +206,6 @@ let controller = {
             if (err) throw err;
 
             const mealId = req.params.mealId;
-            const deleteMealQuery = `DELETE FROM meal WHERE id = ?`;
 
             connection.query(deleteMealQuery, mealId, (error, results, fields) => {
                 connection.release();
