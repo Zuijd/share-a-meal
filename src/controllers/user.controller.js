@@ -22,15 +22,12 @@ let controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
-            const error = {
+            res.status(400).json({
                 status: 400,
-                message: err.message,
-            };
-
-
-            next(error)
+                message: err.message
+            });
         }
-
+        next();
     },
 
     validateEmail: (req, res, next) => {
@@ -54,7 +51,8 @@ let controller = {
         } else {
             res.status(400).json({
                 status: 400,
-                message: "Password too weak"
+                message: "Password too weak",
+                password: password
             })
         }
     },
