@@ -3,7 +3,7 @@ const assert = require('assert');
 const jwt = require('jsonwebtoken');
 
 const loginQuery = `SELECT id, firstName, lastName, emailAdress, password FROM user WHERE emailAdress = ?`;
-const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
+const mealByIdQuery = `SELECT * FROM meal WHERE id = ?`;
 
 
 const controller = {
@@ -77,7 +77,7 @@ const controller = {
 
             const mealId = req.params.mealId;
 
-            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
+            connection.query(mealByIdQuery, mealId, (error, results, fields) => {
                 connection.release();
                 if (error) next(error);
 
@@ -89,6 +89,7 @@ const controller = {
                     let userId;
 
                     jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                        if (err) next(err);
                         userId = decoded.userId;
                     });
 

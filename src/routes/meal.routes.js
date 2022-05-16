@@ -1,10 +1,12 @@
-const express = require('express')
-const router = express.Router()
-const controller = require('../controllers/meal.controller')
-const authController = require('../controllers/auth.controller')
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/meal.controller');
+const authController = require('../controllers/auth.controller');
 
 //get all meals
-router.get("/api/meal", controller.getAllMeals);
+router.get("/api/meal",
+    controller.getAllMeals
+);
 
 //register meal
 router.post("/api/meal",
@@ -13,7 +15,9 @@ router.post("/api/meal",
 );
 
 //get a single meal by id
-router.get("/api/meal/:mealId", controller.getMealById);
+router.get("/api/meal/:mealId",
+    controller.getMealById
+);
 
 //update a single meal
 router.put("/api/meal/:mealId",

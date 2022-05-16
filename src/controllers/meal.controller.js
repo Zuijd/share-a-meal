@@ -1,32 +1,38 @@
-const assert = require('assert')
-const dbconnection = require('../../database/dbconnection')
+const assert = require('assert');
+const dbconnection = require('../../database/dbconnection');
 const jwt = require('jsonwebtoken');
 
 //queries
-const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
+const addMealQuery =
+    `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+const addParticpantQuery =
+    `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
 
-const userInfoQuery = `SELECT * FROM user WHERE id = ?`
-const getAllMealsSql = `SELECT * FROM meal`
-const getParticipantsQuery = `SELECT * FROM meal_participants_user WHERE mealId = ?`;
-const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
+const userByIdQuery =
+    `SELECT * FROM user WHERE id = ?`;
+const allMealsQuery =
+    `SELECT * FROM meal`;
+const getParticipantsByMealIdQuery =
+    `SELECT * FROM meal_participants_user WHERE mealId = ?`;
+const mealByIdQuery =
+    `SELECT * FROM meal WHERE id = ?`;
 
-const updateMealSql = `UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?`;
+const updateMealQuery =
+    `UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?`;
 
-const deleteMealQuery = `DELETE FROM meal WHERE id = ?`;
+const deleteMealQuery =
+    `DELETE FROM meal WHERE id = ?`;
 
 
 let controller = {
     getAllMeals: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
-
-
-            connection.query(getAllMealsSql, (error, results, fields) => {
+            connection.query(allMealsQuery, (error, results, fields) => {
                 connection.release();
 
-                if (error) throw error;
+                if (error) next(error);
 
                 res.status(200).json({
                     status: 200,
@@ -41,7 +47,7 @@ let controller = {
             if (err) next(err);
 
             const meal = req.body;
-            const allergenes = req.body.allergenes
+            const allergenes = req.body.allergenes;
             let allergenesArray = [];
             let allergenesString = "";
 
@@ -55,7 +61,7 @@ let controller = {
             });
             allergenesString = allergenesString.slice(0, -1);
 
-            const authHeader = req.headers.authorization
+            const authHeader = req.headers.authorization;
             const token = authHeader.substring(7, authHeader.length);
             let cookId;
 
@@ -68,7 +74,7 @@ let controller = {
 
 
 
-            connection.query(addMealSql, mealToAdd, (error, results, fields) => {
+            connection.query(addMealQuery, mealToAdd, (error, results, fields) => {
                 connection.release();
                 if (error) next(error);
 
@@ -76,7 +82,7 @@ let controller = {
 
 
 
-                connection.query(userInfoQuery, cookId, (error, results, fields) => {
+                connection.query(userByIdQuery, cookId, (error, results, fields) => {
                     connection.release();
                     if (error) next(error);
 
@@ -86,7 +92,7 @@ let controller = {
                         connection.release();
                         if (error) next(error);
 
-                        connection.query(getParticipantsQuery, mealId, (error, results, fields) => {
+                        connection.query(getParticipantsByMealIdQuery, mealId, (error, results, fields) => {
                             connection.release();
                             if (error) next(error);
 
@@ -98,9 +104,10 @@ let controller = {
 
                             let participants = [];
                             participantIds.forEach(element => {
-                                connection.query(userInfoQuery, element, (error, results, fields) => {
+                                connection.query(userByIdQuery, element, (error, results, fields) => {
                                     connection.release();
                                     if (error) next(error);
+
                                     participants.push(results[0]);
 
                                     mealFullData = {
@@ -108,7 +115,7 @@ let controller = {
                                         ...meal,
                                         "cook": cookInfo,
                                         "participants": participants
-                                    }
+                                    };
 
                                     res.status(201).json({
                                         status: 201,
@@ -125,17 +132,17 @@ let controller = {
 
     getMealById: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             const mealId = req.params.mealId;
             if (isNaN(mealId)) {
                 next();
             }
 
-            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
+            connection.query(mealByIdQuery, mealId, (error, results, fields) => {
                 connection.release();
 
-                if (error) throw error;
+                if (error) next(error);
                 res.status(200).json({
                     status: 200,
                     result: results[0],
@@ -154,7 +161,7 @@ let controller = {
                 next();
             }
 
-            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
+            connection.query(mealByIdQuery, mealId, (error, results, fields) => {
                 connection.release();
                 if (error) next(error);
 
@@ -165,7 +172,7 @@ let controller = {
 
                 const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
 
-                connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
+                connection.query(updateMealQuery, newMealDataInput, (error, results, fields) => {
                     connection.release();
                     if (error) next(error);
 
