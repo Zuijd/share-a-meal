@@ -1,5 +1,5 @@
-const assert = require('assert')
-const dbconnection = require('../../database/dbconnection')
+const assert = require('assert');
+const dbconnection = require('../../database/dbconnection');
 var Regex = require('regex');
 
 let controller = {
@@ -34,16 +34,27 @@ let controller = {
     },
 
     validateEmail: (req, res, next) => {
-        // var regex = /(([a-z]+)\.?([a-z]*))*@([a-z]+)\.(\w{2,})/;
         var regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
-        const email = req.body.emailAdress
-        console.log(regex.test(email));
+        const email = req.body.emailAdress;
         if (regex.test(email)) {
             next();
         } else {
-            res.status(401).json({
-                status: 401,
+            res.status(400).json({
+                status: 400,
                 message: "Invalid emailAdress"
+            })
+        }
+    },
+
+    validatePassword: (req, res, next) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        const password = req.body.password;
+        if (regex.test(password)) {
+            next();
+        } else {
+            res.status(400).json({
+                status: 400,
+                message: "Password too weak"
             })
         }
     },

@@ -12,6 +12,7 @@ userRouter.get("/api/user",
 userRouter.post("/api/user",
     userController.validateUser,
     userController.validateEmail,
+    userController.validatePassword,
     userController.addUser
 );
 

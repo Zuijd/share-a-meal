@@ -121,13 +121,13 @@ let controller = {
                                         status: 201,
                                         result: mealFullData,
                                     });
-                                })
+                                });
                             });
                         });
                     });
                 });
             });
-        })
+        });
     },
 
     getMealById: (req, res, next) => {
