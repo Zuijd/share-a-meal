@@ -4,13 +4,17 @@ const jwt = require('jsonwebtoken');
 
 //queries
 const addMealSql = `INSERT INTO meal (isActive, isVega, isVegan, isToTakeHome, dateTime, maxAmountOfParticipants, price, imageUrl, name, description, allergenes, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
+
 const userInfoQuery = `SELECT * FROM user WHERE id = ?`
 const getAllMealsSql = `SELECT * FROM meal`
-const addParticpantQuery = `INSERT INTO meal_participants_user (mealId, userId) VALUES (?, ?)`;
 const getParticipantsQuery = `SELECT * FROM meal_participants_user WHERE mealId = ?`;
 const getMealByIdSql = `SELECT * FROM meal WHERE id = ?`;
-const deleteMealQuery = `DELETE FROM meal WHERE id = ?`;
+
 const updateMealSql = `UPDATE meal SET isActive = ?, isVega = ?, isVegan = ?, isToTakeHome = ?, dateTime = ?, maxAmountOfParticipants = ?, price = ?, imageUrl = ?, name = ?, description = ? WHERE id = ?`;
+
+const deleteMealQuery = `DELETE FROM meal WHERE id = ?`;
+
 
 let controller = {
     getAllMeals: (req, res, next) => {
@@ -142,7 +146,7 @@ let controller = {
 
     updateMeal: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (error) next(error);
 
             const meal = req.body;
             const mealId = req.params.mealId;
@@ -152,50 +156,50 @@ let controller = {
 
             connection.query(getMealByIdSql, mealId, (error, results, fields) => {
 
-                if (error) throw error;
+                if (error) next(error);
 
                 if (results[0]) {
-                const cookId = results[0].cookId;
+                    const cookId = results[0].cookId;
 
-                const authHeader = req.headers.authorization
-                const token = authHeader.substring(7, authHeader.length);
-                let userId;
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+                    let userId;
 
-                jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
-                    userId = decoded.userId;
-                });
+                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                        userId = decoded.userId;
+                    });
 
-                if (userId === cookId) {
-                    let newMeal = {
-                        ...results[0],
-                        ...meal,
+                    if (userId === cookId) {
+                        let newMeal = {
+                            ...results[0],
+                            ...meal,
+                        }
+
+                        const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+
+                        connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
+                            connection.release();
+
+                            if (error) next(error);
+
+                            res.status(200).json({
+                                status: 200,
+                                result: newMeal,
+                            });
+                        });
+                    } else {
+                        res.status(401).json({
+                            status: 401,
+                            message: "You are not the owner of this meal"
+                        });
                     }
 
-                    const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
-
-                    connection.query(updateMealSql, newMealDataInput, (error, results, fields) => {
-                        connection.release();
-
-                        if (error) throw error;
-
-                        res.status(200).json({
-                            status: 200,
-                            result: newMeal,
-                        });
-                    });
                 } else {
                     res.status(401).json({
-                        status: 401, 
-                        message: "U are not the owner of this meal"
+                        status: 401,
+                        message: "This meal does not exist"
                     });
                 }
-                    
-            } else {
-                res.status(401).json({
-                    status: 401, 
-                    message: "This meal does not exist"
-                });
-            }
 
             });
         });
@@ -203,21 +207,51 @@ let controller = {
 
     deleteMeal: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             const mealId = req.params.mealId;
 
-            connection.query(deleteMealQuery, mealId, (error, results, fields) => {
+            connection.query(getMealByIdSql, mealId, (error, results, fields) => {
                 connection.release();
+                if (error) next(error);
 
-                if (error) throw error;
+                if (results[0]) {
 
-                res.status(200).json({
-                    status: 200,
-                    message: "Meal succesfully deleted",
-                });
+                    const cookId = results[0].cookId;
+
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+                    let userId;
+
+                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                        userId = decoded.userId;
+                    });
+
+                    if (userId === cookId) {
+                        connection.query(deleteMealQuery, mealId, (error, results, fields) => {
+                            connection.release();
+                            if (error) next(error);
+
+                            res.status(200).json({
+                                status: 200,
+                                message: "Meal succesfully deleted",
+                            });
+                        });
+                    } else {
+                        res.status(401).json({
+                            status: 401, 
+                            message: "You are not the owner of this meal"
+                        })
+                    }
+                } else {
+                    res.status(401).json({
+                        status: 401,
+                        message: "This meal does not exist"
+                    })
+                }
+
+
             });
-
         });
     }
 }
