@@ -29,7 +29,6 @@ app.all("*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-    console.log('Error: ' + err.toString());
     res.status(500).json({
         status: 500, 
         message: err.toString()

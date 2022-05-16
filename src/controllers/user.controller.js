@@ -22,12 +22,12 @@ let controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
-            res.status(400).json({
+            res.status(400).json ({
                 status: 400,
-                message: err.message
+                message: err.message,
             });
         }
-        next();
+
     },
 
     validateEmail: (req, res, next) => {
@@ -77,7 +77,7 @@ let controller = {
 
     },
 
-    addUser: (req, res) => {
+    addUser: (req, res, next) => {
 
         dbconnection.getConnection(function (err, connection) {
             if (err) throw err;
