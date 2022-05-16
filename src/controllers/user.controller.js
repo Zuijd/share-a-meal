@@ -44,7 +44,7 @@ let controller = {
     },
 
     validatePassword: (req, res, next) => {
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        const regex = /^.{6,}$/;
         const password = req.body.password;
         if (regex.test(password)) {
             next();
