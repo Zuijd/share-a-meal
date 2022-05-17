@@ -1,6 +1,7 @@
 const assert = require('assert');
 const dbconnection = require('../../database/dbconnection');
 var Regex = require('regex');
+const jwt = require('jsonwebtoken');
 
 let controller = {
     validateUser: (req, res, next) => {
@@ -22,7 +23,7 @@ let controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
-            res.status(400).json ({
+            res.status(400).json({
                 status: 400,
                 message: err.message,
             });
@@ -214,10 +215,31 @@ let controller = {
         });
     },
 
-    getUserProfile: (req, res) => {
-        res.status(401).json({
-            status: 401,
-            message: "This functionality has not been realised (yet)!",
+    getUserProfile: (req, res, next) => {
+
+        dbconnection.getConnection((err, connection) => {
+            if (err) next(err);
+
+            const authHeader = req.headers.authorization;
+            const token = authHeader.substring(7, authHeader.length);
+            let userId;
+
+            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                if (err) next(err);
+                userId = decoded.userId;
+            });
+
+            const getUserInfoQuery = `SELECT * FROM user WHERE id = ?`;
+
+            connection.query(getUserInfoQuery, userId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                res.status(200).json({
+                    status: 200,
+                    result: results[0]
+                })
+            });
         });
     },
 

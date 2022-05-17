@@ -51,10 +51,12 @@ const controller = {
                             });
                         }
                     } else {
-                        res.status(404).json({
-                            status: 404,
-                            message: "This emailadddress is not linked to an account"
-                        })
+                        res.status(400).json({
+                            status: 400,
+                            message: "This emailadddress is not linked to an account",
+                            emailAdress: emailAdress,
+                            password: password
+                        });
                     }
                 });
             });
@@ -77,10 +79,8 @@ const controller = {
                         status: 401,
                         message: "Unauthorized"
                     })
-                }
-                if (payload) {
-                    req.userId = payload.userId
-                    next()
+                } else {
+                    next();
                 }
             })
         } else {
