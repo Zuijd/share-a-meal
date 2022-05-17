@@ -2,7 +2,7 @@ const dbconnection = require('../../database/dbconnection');
 const assert = require('assert');
 const jwt = require('jsonwebtoken');
 
-const loginQuery = `SELECT id, firstName, lastName, emailAdress, password FROM user WHERE emailAdress = ?`;
+const loginQuery = `SELECT * FROM user WHERE emailAdress = ?`;
 const mealByIdQuery = `SELECT * FROM meal WHERE id = ?`;
 
 
@@ -13,37 +13,57 @@ const controller = {
             password,
         } = req.body;
 
+        try {
+            assert(typeof emailAdress === 'string', 'EmailAdress must be a string');
+            assert(typeof password === 'string', 'Password must be a string');
 
-        dbconnection.getConnection(function (err, connection) {
-            if (err) next(err);
+            dbconnection.getConnection(function (err, connection) {
+                if (err) next(err);
 
-            connection.query(loginQuery, emailAdress, (error, results, fields) => {
-                connection.release();
-                if (error) next(error);
+                connection.query(loginQuery, emailAdress, (error, results, fields) => {
+                    connection.release();
+                    if (error) next(error);
 
-                if (results) {
                     const user = results[0];
-                    if (user.password = password) {
-                        jwt.sign({
-                                userId: user.id
-                            },
-                            process.env.JWT_SECRET, {
-                                expiresIn: '100d'
-                            },
-                            function (err, token) {
-                                if (token) {
-                                    user.token = token;
-                                    res.status(200).json({
-                                        status: 200,
-                                        result: user,
-                                    });
-                                }
-                                if (err) next(err);
+
+                    if (user) {
+                        if (password === user.password) {
+                            jwt.sign({
+                                    userId: user.id
+                                },
+                                process.env.JWT_SECRET, {
+                                    expiresIn: '100d'
+                                },
+                                function (err, token) {
+                                    if (token) {
+                                        user.token = token;
+                                        res.status(200).json({
+                                            status: 200,
+                                            result: user,
+                                        });
+                                    }
+                                    if (err) next(err);
+                                });
+                        } else {
+                            res.status(400).json({
+                                status: 400,
+                                message: "Incorrect password"
                             });
+                        }
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            message: "This emailadddress is not linked to an account"
+                        })
                     }
-                }
+                });
             });
-        });
+        } catch (err) {
+            res.status(400).json({
+                status: 400,
+                message: err.message,
+            });
+        }
     },
 
     validateToken: (req, res, next) => {
