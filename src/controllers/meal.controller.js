@@ -25,6 +25,42 @@ const deleteMealQuery =
 
 
 let controller = {
+
+    checkAddMealinput: (req, res, next) => {
+        let meal = req.body;
+        let {
+            name,
+            description,
+            dateTime,
+            imageUrl,
+            price,
+            isActive, 
+            isToTakeHome, 
+            isVega, 
+            isVegan, 
+            maxAmountOfParticipants
+        } = meal;
+        try {
+            assert(typeof name === 'string', 'Name must be a string')
+            assert(typeof description === 'string', 'Description must be a string')
+            assert(typeof dateTime === 'string', 'DateTime must be a string')
+            assert(typeof imageUrl === 'string', 'ImageUrl must be a string')
+            assert(typeof price === 'string', 'Price must be a string')
+            assert(typeof isActive === 'string', 'IsActive must be a string')
+            assert(typeof isToTakeHome === 'string', 'IsToTakeHome must be a string')
+            assert(typeof isVega === 'string', 'IsVega must be a string')
+            assert(typeof isVegan === 'string', 'IsVegan must be a string')
+            assert(typeof maxAmountOfParticipants === 'string', 'MaxAmountOfParticipants must be a string')
+            next();
+        } catch (err) {
+            res.status(400).json({
+                status: 400,
+                message: err.message,
+            });
+        }
+    },
+
+
     getAllMeals: (req, res, next) => {
         dbconnection.getConnection(function (err, connection) {
             if (err) next(err);
@@ -51,15 +87,17 @@ let controller = {
             let allergenesArray = [];
             let allergenesString = "";
 
-            allergenes.forEach(element => {
-                if (element === "gluten" || element === "noten" || element == "lactose") {
-                    if (!(allergenesArray.includes(element))) {
-                        allergenesArray.push(element);
-                        allergenesString += element + ",";
+            if (allergenes) {
+                allergenes.forEach(element => {
+                    if (element === "gluten" || element === "noten" || element == "lactose") {
+                        if (!(allergenesArray.includes(element))) {
+                            allergenesArray.push(element);
+                            allergenesString += element + ",";
+                        }
                     }
-                }
-            });
-            allergenesString = allergenesString.slice(0, -1);
+                });
+                allergenesString = allergenesString.slice(0, -1);
+            }
 
             const authHeader = req.headers.authorization;
             const token = authHeader.substring(7, authHeader.length);
@@ -72,6 +110,7 @@ let controller = {
 
             const mealToAdd = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, meal.name, meal.description, allergenesString, cookId];
 
+            console.log(mealToAdd);
 
 
             connection.query(addMealQuery, mealToAdd, (error, results, fields) => {
@@ -79,8 +118,6 @@ let controller = {
                 if (error) next(error);
 
                 const mealId = results.insertId;
-
-
 
                 connection.query(userByIdQuery, cookId, (error, results, fields) => {
                     connection.release();

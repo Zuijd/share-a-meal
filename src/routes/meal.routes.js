@@ -10,6 +10,7 @@ router.get("/api/meal",
 
 //register meal
 router.post("/api/meal",
+    controller.checkAddMealinput,
     authController.validateToken,
     controller.addMeal
 );

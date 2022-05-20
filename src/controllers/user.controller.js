@@ -196,7 +196,6 @@ let controller = {
 
                                 if (error) next(error);
 
-                                console.log('#results = ', results.length);
                                 res.status(200).json({
                                     status: 200,
                                     result: results[0],
@@ -299,7 +298,6 @@ let controller = {
 
                                                     if (error) next(error);
 
-                                                    console.log('#results = ', results.length);
                                                     res.status(200).json({
                                                         status: 200,
                                                         result: newUser,
@@ -342,7 +340,6 @@ let controller = {
 
                                 if (error) next(error);
 
-                                console.log('#results = ', results.length);
                                 res.status(200).json({
                                     status: 200,
                                     message: "User succesfully deleted",

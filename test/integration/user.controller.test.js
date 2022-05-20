@@ -11,7 +11,6 @@ let createdUserId;
 
 describe('UC-2 Manage users /api/user', () => {
     describe('UC-201 Register as new user', () => {
-
         it('TC-201-1 Mandatory field is missing', (done) => {
             chai.request(server)
                 .post('/api/user')
