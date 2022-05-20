@@ -45,6 +45,7 @@ let controller = {
     },
 
     validatePassword: (req, res, next) => {
+        // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
         const regex = /^.{6,}$/;
         const password = req.body.password;
         if (regex.test(password)) {
@@ -52,8 +53,7 @@ let controller = {
         } else {
             res.status(400).json({
                 status: 400,
-                message: "Password too weak",
-                password: password
+                message: "Password too weak"
             })
         }
     },
@@ -81,7 +81,7 @@ let controller = {
     addUser: (req, res, next) => {
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             let user = req.body;
 
@@ -90,7 +90,7 @@ let controller = {
                 user.emailAdress,
                 function (error, results, fields) {
 
-                    if (error) throw error;
+                    if (error) next(error);
 
                     if (results[0].count > 0) {
                         res.status(409).json({
@@ -103,7 +103,7 @@ let controller = {
                             function (error, results, fields) {
                                 connection.release();
 
-                                if (error) throw error;
+                                if (error) next(error);
 
                                 user = {
                                     "id": results.insertId,
@@ -175,7 +175,7 @@ let controller = {
     getUserByid: (req, res) => {
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             const userId = req.params.userId;
 
@@ -184,7 +184,7 @@ let controller = {
                 userId,
                 function (error, results, fields) {
 
-                    if (error) throw error;
+                    if (error) next(error);
 
 
                     if (results[0].count === 0) {
@@ -198,7 +198,7 @@ let controller = {
                             function (error, results, fields) {
                                 connection.release();
 
-                                if (error) throw error;
+                                if (error) next(error);
 
                                 console.log('#results = ', results.length);
                                 res.status(200).json({
@@ -246,7 +246,7 @@ let controller = {
     updateUser: (req, res, next) => {
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             let user = req.body;
             const userId = req.params.userId;
@@ -256,7 +256,7 @@ let controller = {
                 userId,
                 function (error, results, fields) {
 
-                    if (error) throw error;
+                    if (error) next(error);
 
                     if (results[0].count === 0) {
                         res.status(400).json({
@@ -269,7 +269,7 @@ let controller = {
                             user.emailAdress,
                             function (error, results, fields) {
 
-                                if (error) throw error;
+                                if (error) next(error);
 
                                 if (results[0].count > 0) {
                                     res.status(409).json({
@@ -281,7 +281,7 @@ let controller = {
                                         'SELECT * FROM `user` WHERE `id` = ' + userId + '',
                                         function (error, results, fields) {
 
-                                            if (error) throw error;
+                                            if (error) next(error);
 
                                             let newUser = {
                                                 ...results[0],
@@ -301,7 +301,7 @@ let controller = {
                                                 function (error, results, fields) {
                                                     connection.release();
 
-                                                    if (error) throw error;
+                                                    if (error) next(error);
 
                                                     console.log('#results = ', results.length);
                                                     res.status(200).json({
@@ -322,7 +322,7 @@ let controller = {
     deleteUser: (req, res) => {
 
         dbconnection.getConnection(function (err, connection) {
-            if (err) throw err;
+            if (err) next(err);
 
             const userId = req.params.userId;
 
@@ -331,7 +331,7 @@ let controller = {
                 userId,
                 function (error, results, fields) {
 
-                    if (error) throw error;
+                    if (error) next(error);
 
                     if (results[0].count === 0) {
                         res.status(400).json({
@@ -344,7 +344,7 @@ let controller = {
                             function (error, results, fields) {
                                 connection.release();
 
-                                if (error) throw error;
+                                if (error) next(error);
 
                                 console.log('#results = ', results.length);
                                 res.status(200).json({
