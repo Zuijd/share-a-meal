@@ -116,7 +116,7 @@ describe('UC-2 Manage users /api/user', () => {
                     street: "street",
                     city: "City",
                     emailAdress: "chai@test.com",
-                    password: "1",
+                    password: "secret",
                 })
                 .end((err, res) => {
                     assert.ifError(err)
@@ -147,7 +147,7 @@ describe('UC-2 Manage users /api/user', () => {
                     lastName: "User",
                     street: "Street",
                     city: "City",
-                    emailAdress: "new@User.com",
+                    emailAdress: "zuijd@user.com",
                     password: "newUser123",
                     isActive: 1, 
                     phoneNumber: "0786120504"
@@ -244,7 +244,7 @@ describe('UC-2 Manage users /api/user', () => {
                     lastName: "Test",
                     street: "street",
                     city: "City",
-                    password: "1"
+                    password: "secret"
                 })
                 .end((err, res) => {
                     assert.ifError(err)

@@ -67,15 +67,11 @@ let controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
             next();
         } catch (err) {
-            const error = {
+            res.status(400).json({
                 status: 400,
-                message: err.message,
-            };
-
-
-            next(error)
+                message: err.message
+            })
         }
-
     },
 
     addUser: (req, res, next) => {
