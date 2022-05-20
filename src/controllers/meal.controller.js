@@ -34,10 +34,10 @@ let controller = {
             dateTime,
             imageUrl,
             price,
-            isActive, 
-            isToTakeHome, 
-            isVega, 
-            isVegan, 
+            isActive,
+            isToTakeHome,
+            isVega,
+            isVegan,
             maxAmountOfParticipants
         } = meal;
         try {
@@ -110,8 +110,6 @@ let controller = {
 
             const mealToAdd = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, meal.name, meal.description, allergenesString, cookId];
 
-            console.log(mealToAdd);
-
 
             connection.query(addMealQuery, mealToAdd, (error, results, fields) => {
                 connection.release();
@@ -178,12 +176,19 @@ let controller = {
 
             connection.query(mealByIdQuery, mealId, (error, results, fields) => {
                 connection.release();
-
                 if (error) next(error);
-                res.status(200).json({
-                    status: 200,
-                    result: results[0],
-                });
+
+                if (results[0]) {
+                    res.status(200).json({
+                        status: 200,
+                        result: results[0],
+                    });
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "This user does not exist",
+                    });
+                }
             });
         })
     },

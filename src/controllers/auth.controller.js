@@ -116,15 +116,15 @@ const controller = {
                     if (userId === cookId) {
                         next();
                     } else {
-                        res.status(401).json({
-                            status: 401,
+                        res.status(403).json({
+                            status: 403,
                             message: "You are not the owner of this meal"
                         });
                     }
 
                 } else {
-                    res.status(401).json({
-                        status: 401,
+                    res.status(404).json({
+                        status: 404,
                         message: "This meal does not exist"
                     });
                 }
