@@ -22,6 +22,8 @@ const updateMealQuery =
 
 const deleteMealQuery =
     `DELETE FROM meal WHERE id = ?`;
+const deleteParticipantByIds =
+    `DELETE FROM meal_participants_user WHERE mealId = ? AND userId = ?`;
 
 
 let controller = {
@@ -70,13 +72,13 @@ let controller = {
         if (name || price || maxAmountOfParticipants) {
             try {
                 if (name) {
-                    assert(typeof name === 'string', 'Name must be a string')                    
+                    assert(typeof name === 'string', 'Name must be a string')
                 }
                 if (price) {
-                    assert(typeof price === 'string', 'Price must be a string')                   
+                    assert(typeof price === 'string', 'Price must be a string')
                 }
                 if (maxAmountOfParticipants) {
-                    assert(typeof maxAmountOfParticipants === 'string', 'MaxAmountOfParticipants must be a string')                
+                    assert(typeof maxAmountOfParticipants === 'string', 'MaxAmountOfParticipants must be a string')
                 }
                 next();
             } catch (err) {
@@ -87,7 +89,7 @@ let controller = {
             }
         } else {
             res.status(400).json({
-                status: 400, 
+                status: 400,
                 message: 'Mandatory field is missing'
             })
         }
@@ -219,7 +221,7 @@ let controller = {
                 } else {
                     res.status(404).json({
                         status: 404,
-                        message: "This user does not exist",
+                        message: "This meal does not exist",
                     });
                 }
             });
@@ -277,6 +279,56 @@ let controller = {
                 });
             });
         });
+    },
+
+    participate: (req, res, next) => {
+        dbconnection.getConnection((err, connection) => {
+            connection.release();
+            if (err) next(err);
+
+            const mealId = req.params.mealId;
+            let userId;
+
+            const authHeader = req.headers.authorization;
+            const token = authHeader.substring(7, authHeader.length);
+
+            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                userId = decoded.userId;
+            });
+
+            connection.query(mealByIdQuery, mealId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                if (results[0]) {
+                    connection.query(addParticpantQuery, [mealId, userId], (error, results, fields) => {
+                        connection.release();
+                        if (error) {
+                            connection.query(deleteParticipantByIds, [mealId, userId], (error, results, fields) => {
+                                connection.release();
+                                if (error) next(error);
+                                res.status(200).json({
+                                    status: 200,
+                                    result: results,
+                                    message: "Afgemeld"
+                                })
+                            })
+                        } else {
+                            res.status(200).json({
+                                status: 200,
+                                result: results,
+                                message: "Aangemeld"
+                            })
+                        }
+                    })
+                } else {
+                    res.status(404).json({
+                        status: 404,
+                        message: "This meal does not exist"
+                    })
+                }
+            })
+        })
     }
 }
 

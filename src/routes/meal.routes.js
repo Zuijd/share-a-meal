@@ -36,7 +36,10 @@ router.delete("/api/meal/:mealId",
 );
 
 //participate in a meal
-router.get("/api/meal/:mealId/participate");
+router.post("/api/meal/:mealId/participate",
+    authController.validateToken,
+    controller.participate, 
+);
 
 
 

@@ -18,7 +18,8 @@
 --
 -- Table structure for table `meal`
 --
-
+DROP TABLE IF EXISTS `meal_participants_user`;
+DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `meal`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
