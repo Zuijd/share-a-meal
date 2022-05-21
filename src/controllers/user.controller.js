@@ -58,6 +58,23 @@ let controller = {
         }
     },
 
+    validatePhoneNumber: (req, res, next) => {
+        const regex = /(^\+[0-9]{2}|^\+[0-9]{2}\(0\)|^\(\+[0-9]{2}\)\(0\)|^00[0-9]{2}|^0)([0-9]{9}$|[0-9\-\s]{10}$)/;
+        const phoneNumber = req.body.phoneNumber;
+        if (phoneNumber) {
+            if (regex.test(phoneNumber)) {
+                next();
+            } else {
+                res.status(400).json({
+                    status: 400,
+                    message: "Please enter a valid phone number"
+                });
+            }
+        } else {
+            next();
+        }
+    },
+
     checkMail: (req, res, next) => {
         let user = req.body;
         let {

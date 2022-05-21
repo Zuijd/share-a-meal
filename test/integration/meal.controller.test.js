@@ -239,7 +239,7 @@ describe('UC-3 Manage meals /api/meal', () => {
     })
 
     describe('UC-303 Request a list of meals', () => {
-        it('TC-301-3 List of meals returned', (done) => {
+        it('TC-303-1 List of meals returned', (done) => {
             chai.request(server)
                 .get('/api/meal')
                 .end((err, res) => {
@@ -268,8 +268,6 @@ describe('UC-3 Manage meals /api/meal', () => {
                     expect(result[0].price).to.equal('6.50')
 
                     expect(result[0].cookId).to.equal(1)
-
-
 
                     /* expect(result[0].cook.cookId).to.equal(1);
                     expect(result[0].cook.firstName).to.equal('first');

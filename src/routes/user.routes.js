@@ -24,18 +24,22 @@ userRouter.get("/api/user/profile",
 
 //get a single user by id
 userRouter.get("/api/user/:userId",
-    authController.validateToken, 
+    authController.validateToken,
     userController.getUserByid
 );
 
 //update a single user
 userRouter.put("/api/user/:userId",
+    authController.validateToken,
     userController.checkMail,
+    userController.validatePhoneNumber,
+    userController.validatePassword,
     userController.updateUser
 );
 
 //delete a user
 userRouter.delete("/api/user/:userId",
+    authController.validateToken,
     userController.deleteUser
 );
 

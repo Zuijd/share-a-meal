@@ -376,6 +376,10 @@ describe('UC-2 Manage users /api/user', () => {
         it('TC-205-1 Mandatory field is missing', (done) => {
             chai.request(server)
                 .put('/api/user/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
                 .send({
                     firstName: "Chai",
                     lastName: "Test",
@@ -402,16 +406,54 @@ describe('UC-2 Manage users /api/user', () => {
                 })
         })
 
-        it('TC-205-4 User does not exist', (done) => {
+        it('TC-205-3 Invalid phone number', (done) => {
             chai.request(server)
-                .put('/api/user/420')
+                .put('/api/user/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
                 .send({
                     firstName: "Chai",
                     lastName: "Test",
                     street: "street",
                     city: "City",
                     emailAdress: "test@test.com",
-                    password: "1"
+                    password: "secret",
+                    phoneNumber: "123"
+                })
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(400)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'message')
+
+                    let {
+                        status,
+                        message
+                    } = res.body
+                    status.should.be.a('number').that.equals(400)
+                    message.should.be.a('string').that.equals('Please enter a valid phone number')
+                    done()
+                })
+        })
+
+        it('TC-205-4 User does not exist', (done) => {
+            chai.request(server)
+                .put('/api/user/420')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
+                .send({
+                    firstName: "Chai",
+                    lastName: "Test",
+                    street: "street",
+                    city: "City",
+                    emailAdress: "test@test.com"
                 })
                 .end((err, res) => {
                     assert.ifError(err)
@@ -432,12 +474,50 @@ describe('UC-2 Manage users /api/user', () => {
                 })
         })
 
+        it('TC-205-5 Not logged in', (done) => {
+            chai.request(server)
+                .put('/api/user/420')
+                .set(
+                    'authorization',
+                    'Bearer ' + 123
+                )
+                .send({
+                    firstName: "Chai",
+                    lastName: "Test",
+                    street: "street",
+                    city: "City",
+                    emailAdress: "test@test.com",
+                    password: "secret"
+                })
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(401)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'message')
+
+                    let {
+                        status,
+                        message
+                    } = res.body
+                    status.should.be.a('number').that.equals(401)
+                    message.should.be.a('string').that.equals('Unauthorized')
+                    done()
+                })
+        })
+
         it('TC-205-6 User updated succesfully', (done) => {
             chai.request(server)
                 .put('/api/user/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
                 .send({
                     emailAdress: "test@test.com",
-                    password: "2"
+                    password: "secret123"
                 })
                 .end((err, res) => {
                     assert.ifError(err)
@@ -453,16 +533,18 @@ describe('UC-2 Manage users /api/user', () => {
                         result
                     } = res.body
                     status.should.be.a('number').that.equals(200)
-                    result.should.have.property('id').and.to.be.a('number')
-                    result.should.have.property('firstName').and.to.be.a('string')
-                    result.should.have.property('lastName').and.to.be.a('string')
-                    result.should.have.property('street').and.to.be.a('string')
-                    result.should.have.property('city').and.to.be.a('string')
-                    result.should.have.property('emailAdress').and.to.be.a('string')
-                    result.should.have.property('password').and.to.be.a('string')
-                    result.should.have.property('isActive').and.to.be.a('number')
-                    result.should.have.property('phoneNumber').and.to.be.a('string')
-                    done()
+                    expect(status).to.equal(200)
+                    expect(result.id).to.equal(1)
+                    expect(result.firstName).to.equal('first');
+                    expect(result.lastName).to.equal('last');
+                    expect(result.isActive).to.equal(1);
+                    expect(result.emailAdress).to.equal('test@test.com');
+                    expect(result.password).to.equal('secret123');
+                    expect(result.phoneNumber).to.equal('-');
+                    expect(result.street).to.equal('street');
+                    expect(result.city).to.equal('city');
+                    expect(result.roles).to.equal('editor,guest');
+                    done();
                 })
         })
     })
@@ -470,7 +552,11 @@ describe('UC-2 Manage users /api/user', () => {
     describe('UC-206 Delete user', () => {
         it('TC-206-1 User does not exist', (done) => {
             chai.request(server)
-                .delete('/api/user/' + createdUserId + 1)
+                .delete('/api/user/420')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(400)
