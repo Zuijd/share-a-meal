@@ -17,7 +17,7 @@ const controller = {
             assert(typeof emailAdress === 'string', 'EmailAdress must be a string');
             assert(typeof password === 'string', 'Password must be a string');
 
-            dbconnection.getConnection(function (err, connection) {
+            dbconnection.getConnection((err, connection) => {
                 if (err) next(err);
 
                 connection.query(loginQuery, emailAdress, (error, results, fields) => {
@@ -34,7 +34,7 @@ const controller = {
                                 process.env.JWT_SECRET, {
                                     expiresIn: '100d'
                                 },
-                                function (err, token) {
+                                (err, token) => {
                                     if (token) {
                                         user.token = token;
                                         res.status(200).json({
@@ -92,7 +92,7 @@ const controller = {
     },
 
     checkUserRights: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const mealId = req.params.mealId;
@@ -108,7 +108,7 @@ const controller = {
                     const token = authHeader.substring(7, authHeader.length);
                     let userId;
 
-                    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
                         if (err) next(err);
                         userId = decoded.userId;
                     });

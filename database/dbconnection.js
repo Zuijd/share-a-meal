@@ -12,7 +12,7 @@ const pool = mysql.createPool({
     timezone: 'cest'
 });
 
-pool.on('connection', function (connection) {
+pool.on('connection', (connection) => {
     connection.query('SET SESSION auto_increment_increment=1')
 });
 

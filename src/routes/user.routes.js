@@ -24,6 +24,7 @@ userRouter.get("/api/user/profile",
 
 //get a single user by id
 userRouter.get("/api/user/:userId",
+    authController.validateToken, 
     userController.getUserByid
 );
 
@@ -37,8 +38,5 @@ userRouter.put("/api/user/:userId",
 userRouter.delete("/api/user/:userId",
     userController.deleteUser
 );
-
-
-
 
 module.exports = userRouter

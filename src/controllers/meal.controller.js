@@ -62,7 +62,7 @@ let controller = {
 
 
     getAllMeals: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             connection.query(allMealsQuery, (error, results, fields) => {
@@ -79,7 +79,7 @@ let controller = {
     },
 
     addMeal: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const meal = req.body;
@@ -103,7 +103,7 @@ let controller = {
             const token = authHeader.substring(7, authHeader.length);
             let cookId;
 
-            jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+            jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
                 cookId = decoded.userId;
             });
 
@@ -166,7 +166,7 @@ let controller = {
     },
 
     getMealById: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const mealId = req.params.mealId;
@@ -194,7 +194,7 @@ let controller = {
     },
 
     updateMeal: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const meal = req.body;
@@ -228,7 +228,7 @@ let controller = {
     },
 
     deleteMeal: (req, res, next) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             connection.release();
             if (err) next(err);
 

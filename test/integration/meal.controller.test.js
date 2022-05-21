@@ -11,7 +11,6 @@ chai.should();
 chai.expect();
 chai.use(chaiHttp);
 
-let createdMeal;
 let token;
 let wrongToken;
 
@@ -42,9 +41,9 @@ describe('UC-3 Manage meals /api/meal', () => {
     })
 
     beforeEach((done) => {
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) throw err
-            connection.query(CLEAR_DB + INSERT_USER + INSERT_MEALS, function (error, results, fields) {
+            connection.query(CLEAR_DB + INSERT_USER + INSERT_MEALS, (error, results, fields) => {
                 connection.release()
                 if (error) throw error
                 done()
@@ -193,7 +192,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                         .an('object')
                         .that.has.all.keys('status', 'result')
 
-                    createdMeal = res.body.result.id
+                    let createdMeal = res.body.result.id
 
                     let {
                         status,
@@ -315,7 +314,7 @@ describe('UC-3 Manage meals /api/meal', () => {
     describe('UC-304 Request details of a meal', () => {
         it('TC-304-1 Meal does not exist', (done) => {
             chai.request(server)
-                .get('/api/meal/' + createdMeal + 1)
+                .get('/api/meal/420')
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(404)
@@ -356,7 +355,7 @@ describe('UC-3 Manage meals /api/meal', () => {
     describe('UC-305 Deleting meals', () => {
         it('TC-305-2 not logged in (no token)', (done) => {
             chai.request(server)
-                .delete('/api/meal/' + createdMeal)
+                .delete('/api/meal/1')
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(401)
@@ -380,7 +379,7 @@ describe('UC-3 Manage meals /api/meal', () => {
 
         it('TC-305-2 not logged in (wrong token)', (done) => {
             chai.request(server)
-                .delete('/api/meal/' + createdMeal)
+                .delete('/api/meal/1')
                 .set(
                     'authorization',
                     'Bearer ' + 123
@@ -483,8 +482,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                         message
                     } = res.body
                     status.should.be.a('number')
-                    message.should.be
-                        .a('string')
+                    message.should.be.a('string')
                         .that.contains('Meal succesfully deleted')
                     done()
                 })

@@ -76,7 +76,7 @@ let controller = {
 
     addUser: (req, res, next) => {
 
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             let user = req.body;
@@ -84,7 +84,7 @@ let controller = {
             connection.query(
                 'SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ?',
                 user.emailAdress,
-                function (error, results, fields) {
+                (error, results, fields) => {
 
                     if (error) next(error);
 
@@ -96,7 +96,7 @@ let controller = {
                     } else {
                         connection.query(
                             `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
-                            function (error, results, fields) {
+                            (error, results, fields) => {
                                 connection.release();
 
                                 if (error) next(error);
@@ -146,7 +146,7 @@ let controller = {
             }
         }
 
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) {
                 next(err);
             }
@@ -170,7 +170,7 @@ let controller = {
 
     getUserByid: (req, res) => {
 
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const userId = req.params.userId;
@@ -178,7 +178,7 @@ let controller = {
             connection.query(
                 'SELECT COUNT(id) as count FROM user WHERE id = ?',
                 userId,
-                function (error, results, fields) {
+                (error, results, fields) => {
 
                     if (error) next(error);
 
@@ -191,7 +191,7 @@ let controller = {
                     } else {
                         connection.query(
                             'SELECT * FROM `user` WHERE `id` = ' + userId + '',
-                            function (error, results, fields) {
+                            (error, results, fields) => {
                                 connection.release();
 
                                 if (error) next(error);
@@ -236,7 +236,7 @@ let controller = {
 
     updateUser: (req, res, next) => {
 
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             let user = req.body;
@@ -245,7 +245,7 @@ let controller = {
             connection.query(
                 `SELECT COUNT(id) as count FROM user WHERE id = ?`,
                 userId,
-                function (error, results, fields) {
+                (error, results, fields) => {
 
                     if (error) next(error);
 
@@ -258,7 +258,7 @@ let controller = {
                         connection.query(
                             `SELECT COUNT(emailAdress) as count FROM user WHERE emailAdress = ? AND NOT id = '${userId}'`,
                             user.emailAdress,
-                            function (error, results, fields) {
+                            (error, results, fields) => {
 
                                 if (error) next(error);
 
@@ -270,7 +270,7 @@ let controller = {
                                 } else {
                                     connection.query(
                                         'SELECT * FROM `user` WHERE `id` = ' + userId + '',
-                                        function (error, results, fields) {
+                                        (error, results, fields) => {
 
                                             if (error) next(error);
 
@@ -289,7 +289,7 @@ let controller = {
 
                                             connection.query(
                                                 `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${isActiveNum}' WHERE id = '${userId}'`,
-                                                function (error, results, fields) {
+                                                (error, results, fields) => {
                                                     connection.release();
 
                                                     if (error) next(error);
@@ -309,9 +309,9 @@ let controller = {
         });
     },
 
-    deleteUser: (req, res) => {
+    deleteUser: (req, res, next) => {
 
-        dbconnection.getConnection(function (err, connection) {
+        dbconnection.getConnection((err, connection) => {
             if (err) next(err);
 
             const userId = req.params.userId;
@@ -319,7 +319,7 @@ let controller = {
             connection.query(
                 'SELECT COUNT(id) as count FROM user WHERE id = ?',
                 userId,
-                function (error, results, fields) {
+                (error, results, fields) => {
 
                     if (error) next(error);
 
@@ -330,25 +330,35 @@ let controller = {
                         });
                     } else {
                         connection.query(
-                            `DELETE FROM user WHERE id = '${userId}'`,
-                            function (error, results, fields) {
+                            `DELETE FROM meal_participants_user WHERE userId = ?`,
+                            userId,
+                            (error, results, fields) => {
                                 connection.release();
-
                                 if (error) next(error);
-
-                                res.status(200).json({
-                                    status: 200,
-                                    message: "User succesfully deleted",
-                                });
+                                connection.query(
+                                    `DELETE FROM meal WHERE cookId = ?`,
+                                    userId,
+                                    (error, results, fields) => {
+                                        connection.release();
+                                        if (error) next(error);
+                                        connection.query(
+                                            `DELETE FROM user WHERE id = ?`,
+                                            userId,
+                                            (error, results, fields) => {
+                                                connection.release();
+                                                if (error) next(error);
+                                                res.status(200).json({
+                                                    status: 200,
+                                                    message: "User succesfully deleted",
+                                                });
+                                            });
+                                    });
                             });
                     }
+
                 });
-
-
-
-        });
+        })
     },
-
 }
 
 module.exports = controller
