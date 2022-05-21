@@ -5,6 +5,7 @@ const authController = require('../controllers/auth.controller')
 
 //get all users
 userRouter.get("/api/user",
+    authController.validateToken,
     userController.getAllUsers
 );
 

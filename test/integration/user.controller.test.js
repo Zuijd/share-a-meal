@@ -216,7 +216,196 @@ describe('UC-2 Manage users /api/user', () => {
         })
     })
 
-    //UC-202
+    describe('UC-202 Overview of users', () => {
+        it('TC-202-1 Show zero users', (done) => {
+            chai.request(server)
+                .get('/api/user?firstName=nooutputpls')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(200)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'result')
+
+                    let {
+                        status,
+                        result
+                    } = res.body
+
+                    status.should.be.a('number').that.equals(200)
+                    result.should.be.an('array').that.has.a.lengthOf(0);
+                    done()
+                })
+        })
+
+        it('TC-202-1 Show users', (done) => {
+            chai.request(server)
+                .get('/api/user?firstName=first')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(200)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'result')
+
+                    let {
+                        status,
+                        result
+                    } = res.body
+
+                    status.should.be.a('number').that.equals(200)
+                    expect(status).to.equal(200)
+                    expect(result[0].id).to.equal(1)
+                    expect(result[0].firstName).to.equal('first');
+                    expect(result[0].lastName).to.equal('last');
+                    expect(result[0].isActive).to.equal(1);
+                    expect(result[0].emailAdress).to.equal('name@server.nl');
+                    expect(result[0].password).to.equal('secret');
+                    expect(result[0].phoneNumber).to.equal('-');
+                    expect(result[0].street).to.equal('street');
+                    expect(result[0].city).to.equal('city');
+                    done()
+                })
+        })
+
+        it('TC-202-3 Show users with non-existing name', (done) => {
+            chai.request(server)
+                .get('/api/user?firstName=nonexistingname')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(200)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'result')
+
+                    let {
+                        status,
+                        result
+                    } = res.body
+
+                    status.should.be.a('number').that.equals(200)
+                    result.should.be.an('array').that.has.a.lengthOf(0);
+                    done()
+                })
+        })
+    })
+
+    it('TC-202-4 Show inactive users', (done) => {
+        chai.request(server)
+            .get('/api/user?isActive=0')
+            .set(
+                'authorization',
+                'Bearer ' + token
+            )
+            .end((err, res) => {
+                assert.ifError(err)
+                res.should.have.status(200)
+                res.should.be.an('object')
+
+                res.body.should.be
+                    .an('object')
+                    .that.has.all.keys('status', 'result')
+
+                let {
+                    status,
+                    result
+                } = res.body
+
+                status.should.be.a('number').that.equals(200)
+                result.should.be.an('array').that.has.a.lengthOf(0);
+                done()
+            })
+    })
+
+    it('TC-202-5 Show active users', (done) => {
+        chai.request(server)
+            .get('/api/user?isActive=1')
+            .set(
+                'authorization',
+                'Bearer ' + token
+            )
+            .end((err, res) => {
+                assert.ifError(err)
+                res.should.have.status(200)
+                res.should.be.an('object')
+
+                res.body.should.be
+                    .an('object')
+                    .that.has.all.keys('status', 'result')
+
+                let {
+                    status,
+                    result
+                } = res.body
+
+                status.should.be.a('number').that.equals(200)
+                expect(status).to.equal(200)
+                expect(result[0].id).to.equal(1)
+                expect(result[0].firstName).to.equal('first');
+                expect(result[0].lastName).to.equal('last');
+                expect(result[0].isActive).to.equal(1);
+                expect(result[0].emailAdress).to.equal('name@server.nl');
+                expect(result[0].password).to.equal('secret');
+                expect(result[0].phoneNumber).to.equal('-');
+                expect(result[0].street).to.equal('street');
+                expect(result[0].city).to.equal('city');
+                done()
+            })
+    })
+
+    it('TC-202-6 Filter on two variables', (done) => {
+        chai.request(server)
+            .get('/api/user?firstName=first&isActive=1')
+            .set(
+                'authorization',
+                'Bearer ' + token
+            )
+            .end((err, res) => {
+                assert.ifError(err)
+                res.should.have.status(200)
+                res.should.be.an('object')
+
+                res.body.should.be
+                    .an('object')
+                    .that.has.all.keys('status', 'result')
+
+                let {
+                    status,
+                    result
+                } = res.body
+
+                status.should.be.a('number').that.equals(200)
+                expect(status).to.equal(200)
+                expect(result[0].id).to.equal(1)
+                expect(result[0].firstName).to.equal('first');
+                expect(result[0].lastName).to.equal('last');
+                expect(result[0].isActive).to.equal(1);
+                expect(result[0].emailAdress).to.equal('name@server.nl');
+                expect(result[0].password).to.equal('secret');
+                expect(result[0].phoneNumber).to.equal('-');
+                expect(result[0].street).to.equal('street');
+                expect(result[0].city).to.equal('city');
+                done()
+            })
+    })
 
     describe('UC-203 Request user profile', () => {
         it('TC-203-1 Invalid token', (done) => {
