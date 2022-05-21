@@ -39,7 +39,7 @@ let controller = {
         } else {
             res.status(400).json({
                 status: 400,
-                message: "Invalid emailAdress"
+                message: "Invalid email address"
             })
         }
     },
@@ -81,7 +81,7 @@ let controller = {
             emailAdress
         } = user;
         try {
-            assert(typeof emailAdress === 'string', 'EmailAdress must be a string')
+            assert(typeof emailAdress === 'string', 'Email address must be a string')
             next();
         } catch (err) {
             res.status(400).json({

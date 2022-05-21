@@ -108,7 +108,7 @@ describe('UC-2 Manage users /api/user', () => {
                         message
                     } = res.body
                     status.should.be.a('number').that.equals(400)
-                    message.should.be.a('string').that.equals('Invalid emailAdress')
+                    message.should.be.a('string').that.equals('Invalid email address')
                     done()
                 })
         })
@@ -401,7 +401,7 @@ describe('UC-2 Manage users /api/user', () => {
                         message
                     } = res.body
                     status.should.be.a('number').that.equals(400)
-                    message.should.be.a('string').that.equals('EmailAdress must be a string')
+                    message.should.be.a('string').that.equals('Email address must be a string')
                     done()
                 })
         })
@@ -571,7 +571,59 @@ describe('UC-2 Manage users /api/user', () => {
                         message
                     } = res.body
                     status.should.be.a('number').that.equals(400)
-                    message.should.be.a('string').that.equals('User does not exist')
+                    message.should.be.a('string').that.equals('This user does not exist')
+                    done()
+                })
+        })
+
+        it('TC-206-2 Not logged in', (done) => {
+            chai.request(server)
+                .delete('/api/user/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + 123
+                )
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(401)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'message')
+
+                    let {
+                        status,
+                        message
+                    } = res.body
+                    status.should.be.a('number').that.equals(401)
+                    message.should.be.a('string').that.equals('Unauthorized')
+                    done()
+                })
+        })
+
+        it('TC-206-3 Actor is not the owner', (done) => {
+            chai.request(server)
+                .delete('/api/user/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + wrongToken
+                )
+                .end((err, res) => {
+                    assert.ifError(err)
+                    res.should.have.status(403)
+                    res.should.be.an('object')
+
+                    res.body.should.be
+                        .an('object')
+                        .that.has.all.keys('status', 'message')
+
+                    let {
+                        status,
+                        message
+                    } = res.body
+                    status.should.be.a('number').that.equals(403)
+                    message.should.be.a('string').that.equals('You are not the owner of this account')
                     done()
                 })
         })

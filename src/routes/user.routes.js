@@ -31,6 +31,7 @@ userRouter.get("/api/user/:userId",
 //update a single user
 userRouter.put("/api/user/:userId",
     authController.validateToken,
+    authController.checkUserOwnership,
     userController.checkMail,
     userController.validatePhoneNumber,
     userController.validatePassword,
@@ -40,6 +41,7 @@ userRouter.put("/api/user/:userId",
 //delete a user
 userRouter.delete("/api/user/:userId",
     authController.validateToken,
+    authController.checkUserOwnership,
     userController.deleteUser
 );
 

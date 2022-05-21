@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const loginQuery = `SELECT * FROM user WHERE emailAdress = ?`;
 const mealByIdQuery = `SELECT * FROM meal WHERE id = ?`;
+const userByIdQuery = `SELECT * FROM user WHERE id = ?`;
 
 
 const controller = {
@@ -51,11 +52,9 @@ const controller = {
                             });
                         }
                     } else {
-                        res.status(400).json({
-                            status: 400,
-                            message: "This emailadddress is not linked to an account",
-                            emailAdress: emailAdress,
-                            password: password
+                        res.status(404).json({
+                            status: 404,
+                            message: "This emailadddress is not linked to an account"
                         });
                     }
                 });
@@ -126,6 +125,47 @@ const controller = {
                     res.status(404).json({
                         status: 404,
                         message: "This meal does not exist"
+                    });
+                }
+
+            });
+        })
+    }, 
+
+    checkUserOwnership: (req, res, next) => {
+        dbconnection.getConnection((err, connection) => {
+            if (err) next(err);
+
+            let userId = req.params.userId;
+
+            connection.query(userByIdQuery, userId, (error, results, fields) => {
+                connection.release();
+                if (error) next(error);
+
+                if (results[0]) {
+                    const owner = results[0].id;
+
+                    const authHeader = req.headers.authorization
+                    const token = authHeader.substring(7, authHeader.length);
+
+                    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+                        if (err) next(err);
+                        userId = decoded.userId;
+                    });
+
+                    if (userId === owner) {
+                        next();
+                    } else {
+                        res.status(403).json({
+                            status: 403,
+                            message: "You are not the owner of this account"
+                        });
+                    }
+
+                } else {
+                    res.status(400).json({
+                        status: 400,
+                        message: "This user does not exist"
                     });
                 }
 
