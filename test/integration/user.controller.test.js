@@ -114,7 +114,7 @@ describe('UC-2 Manage users /api/user', () => {
                     lastName: "Test",
                     street: "street",
                     city: "City",
-                    emailAdress: "chai@test.com",
+                    emailAdress: "name@server.nl",
                     password: "secret",
                 })
                 .end((err, res) => {
