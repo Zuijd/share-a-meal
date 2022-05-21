@@ -142,24 +142,93 @@ let controller = {
 
         let getUsersQuery = `SELECT * FROM user`;
         let {
+            id,
             firstName,
-            isActive
+            lastName,
+            isActive,
+            emailAdress,
+            phoneNumber,
+            roles,
+            street,
+            city
         } = req.query;
-        let varsToAddToQuery = [];
 
-        if (firstName || isActive) {
+        let varsToAddToQuery = [];
+        let i = 0;
+
+        if (id || firstName || lastName || isActive || emailAdress || phoneNumber || roles || street || city) {
             getUsersQuery += ` WHERE `;
+            if (id) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `id = ?`;
+                varsToAddToQuery.push(id);
+            }
             if (firstName) {
-                getUsersQuery += `firstName LIKE ?`;
-                firstName += '%';
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `firstName = ?`;
                 varsToAddToQuery.push(firstName);
             }
-            if (firstName && isActive) {
-                getUsersQuery += ` AND `;
+            if (lastName) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `lastName = ?`;
+                varsToAddToQuery.push(lastName);
             }
             if (isActive) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
                 getUsersQuery += `isActive = ?`;
                 varsToAddToQuery.push(isActive);
+            }
+            if (emailAdress) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `emailAdress = ?`;
+                varsToAddToQuery.push(emailAdress);
+            }
+            if (phoneNumber) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `phoneNumber = ?`;
+                varsToAddToQuery.push(phoneNumber);
+            }
+            if (roles) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `roles = ?`;
+                varsToAddToQuery.push(roles);
+            }
+            if (street) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `street = ?`;
+                varsToAddToQuery.push(street);
+            }
+            if (city) {
+                i++;
+                if (i > 1) {
+                    getUsersQuery += ` AND `
+                }
+                getUsersQuery += `city = ?`;
+                varsToAddToQuery.push(city);
             }
         }
 
