@@ -237,8 +237,6 @@ let controller = {
                 next(err);
             }
 
-
-
             connection.query(getUsersQuery, varsToAddToQuery, (error, results, fields) => {
                 connection.release();
 
