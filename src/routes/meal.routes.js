@@ -24,6 +24,7 @@ router.get("/api/meal/:mealId",
 router.put("/api/meal/:mealId",
     authController.validateToken,
     authController.checkUserRights,
+    controller.checkForUpdateData,
     controller.updateMeal
 );
 

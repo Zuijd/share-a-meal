@@ -238,84 +238,26 @@ describe('UC-3 Manage meals /api/meal', () => {
         })
     })
 
-    describe('UC-303 Request a list of meals', () => {
-        it('TC-303-1 List of meals returned', (done) => {
+    describe('UC-302 editting a meal', () => {
+        it('TC-302-1 Mandatory field is missing', (done) => {
             chai.request(server)
-                .get('/api/meal')
-                .end((err, res) => {
-                    assert.ifError(err)
-                    res.should.have.status(200)
-                    res.should.be.an('object')
-
-                    res.body.should.be
-                        .an('object')
-                        .that.has.all.keys('status', 'result')
-
-                    let {
-                        result
-                    } = res.body
-
-                    expect(result[0].id).to.equal(1);
-                    expect(result[0].name).to.equal('Meal A')
-                    expect(result[0].description).to.equal('description')
-                    expect(result[0].isActive).to.equal(0)
-                    expect(result[0].isVega).to.equal(0)
-                    expect(result[0].isVegan).to.equal(0)
-                    expect(result[0].isToTakeHome).to.equal(1)
-                    expect(result[0].dateTime).to.equal('2022-05-17T08:27:15.000Z')
-                    expect(result[0].imageUrl).to.equal('image url')
-                    expect(result[0].maxAmountOfParticipants).to.equal(5)
-                    expect(result[0].price).to.equal('6.50')
-
-                    expect(result[0].cookId).to.equal(1)
-
-                    /* expect(result[0].cook.cookId).to.equal(1);
-                    expect(result[0].cook.firstName).to.equal('first');
-                    expect(result[0].cook.lastName).to.equal('last');
-                    expect(result[0].cook.isActive).to.equal(1);
-                    expect(result[0].cook.emailAdress).to.equal('name@server.nl');
-                    expect(result[0].cook.password).to.equal('secret');
-                    expect(result[0].cook.phoneNumber).to.equal('-');
-                    expect(result[0].cook.roles).to.equal('editor,guest');
-                    expect(result[0].cook.street).to.equal('street');
-                    expect(result[0].cook.city).to.equal('city'); */
-
-                    expect(result[1].id).to.equal(2);
-                    expect(result[1].name).to.equal('Meal B')
-                    expect(result[1].description).to.equal('description')
-                    expect(result[1].isActive).to.equal(0)
-                    expect(result[1].isVega).to.equal(0)
-                    expect(result[1].isVegan).to.equal(0)
-                    expect(result[1].isToTakeHome).to.equal(1)
-                    expect(result[1].dateTime).to.equal('2022-05-17T08:27:15.000Z')
-                    expect(result[1].imageUrl).to.equal('image url')
-                    expect(result[1].maxAmountOfParticipants).to.equal(5)
-                    expect(result[1].price).to.equal('6.50')
-                    
-                    expect(result[0].cookId).to.equal(1)
-
-                    /* expect(result[1].cook.cookId).to.equal(1);
-                    expect(result[1].cook.firstName).to.equal('first');
-                    expect(result[1].cook.lastName).to.equal('last');
-                    expect(result[1].cook.isActive).to.equal(1);
-                    expect(result[1].cook.emailAdress).to.equal('name@server.nl');
-                    expect(result[1].cook.password).to.equal('secret');
-                    expect(result[1].cook.phoneNumber).to.equal('-');
-                    expect(result[1].cook.roles).to.equal('editor,guest');
-                    expect(result[1].cook.street).to.equal('street');
-                    expect(result[1].cook.city).to.equal('city'); */
-                    done()
+                .put('/api/meal/1')
+                .set(
+                    'authorization',
+                    'Bearer ' + token
+                )
+                .send({
+                    "description": "Dé pastaklassieker bij uitstek.",
+                    "isActive": "1",
+                    "isVega": "1",
+                    "isVegan": "1",
+                    "isToTakeHome": "1",
+                    "dateTime": "2022-05-15T20:07:10.870Z",
+                    "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg"
                 })
-        })
-    })
-
-    describe('UC-304 Request details of a meal', () => {
-        it('TC-304-1 Meal does not exist', (done) => {
-            chai.request(server)
-                .get('/api/meal/420')
                 .end((err, res) => {
                     assert.ifError(err)
-                    res.should.have.status(404)
+                    res.should.have.status(400)
                     res.should.be.an('object')
 
                     res.body.should.be
@@ -329,31 +271,26 @@ describe('UC-3 Manage meals /api/meal', () => {
                     status.should.be.a('number')
                     message.should.be
                         .a('string')
-                        .that.contains('This user does not exist')
+                        .that.contains('Mandatory field is missing')
                     done()
                 })
         })
-    })
 
-    it('TC-304-2 Meal details returned', (done) => {
-        chai.request(server)
-            .get('/api/meal/1')
-            .end((err, res) => {
-                assert.ifError(err)
-                res.should.have.status(200)
-                res.should.be.an('object')
-
-                res.body.should.be
-                    .an('object')
-                    .that.has.all.keys('status', 'result')
-                done()
-            })
-    })
-
-    describe('UC-305 Deleting meals', () => {
-        it('TC-305-2 not logged in (no token)', (done) => {
+        it('TC-302-2 not logged in (no token)', (done) => {
             chai.request(server)
-                .delete('/api/meal/1')
+                .put('/api/meal/1')
+                .send({
+                    "name": "Spaghetti Bolognese",
+                    "description": "Dé pastaklassieker bij uitstek.",
+                    "isActive": "1",
+                    "isVega": "1",
+                    "isVegan": "1",
+                    "isToTakeHome": "1",
+                    "dateTime": "2022-05-15T20:07:10.870Z",
+                    "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+                    "maxAmountOfParticipants": "6",
+                    "price": "6.75"
+                })
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(401)
@@ -375,41 +312,25 @@ describe('UC-3 Manage meals /api/meal', () => {
                 })
         })
 
-        it('TC-305-2 not logged in (wrong token)', (done) => {
+        it('TC-302-3 Not the owner of the data', (done) => {
             chai.request(server)
-                .delete('/api/meal/1')
-                .set(
-                    'authorization',
-                    'Bearer ' + 123
-                )
-                .end((err, res) => {
-                    assert.ifError(err)
-                    res.should.have.status(401)
-                    res.should.be.an('object')
-
-                    res.body.should.be
-                        .an('object')
-                        .that.has.all.keys('status', 'message')
-
-                    let {
-                        status,
-                        message
-                    } = res.body
-                    status.should.be.a('number')
-                    message.should.be
-                        .a('string')
-                        .that.contains('Unauthorized')
-                    done()
-                })
-        })
-
-        it('TC-305-3 Not the owner of the data', (done) => {
-            chai.request(server)
-                .delete('/api/meal/1')
+                .put('/api/meal/1')
                 .set(
                     'authorization',
                     'Bearer ' + wrongToken
                 )
+                .send({
+                    "name": "Spaghetti Bolognese",
+                    "description": "Dé pastaklassieker bij uitstek.",
+                    "isActive": "1",
+                    "isVega": "1",
+                    "isVegan": "1",
+                    "isToTakeHome": "1",
+                    "dateTime": "2022-05-15T20:07:10.870Z",
+                    "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+                    "maxAmountOfParticipants": "6",
+                    "price": "6.75"
+                })
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(403)
@@ -423,7 +344,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                         status,
                         message
                     } = res.body
-                    status.should.be.a('number')
+                    status.should.be.a('number').that.equals(403)
                     message.should.be
                         .a('string')
                         .that.contains('You are not the owner of this meal')
@@ -431,13 +352,25 @@ describe('UC-3 Manage meals /api/meal', () => {
                 })
         })
 
-        it('TC-305-4 Meal does not exist', (done) => {
+        it('TC-302-4 Meal does not exist', (done) => {
             chai.request(server)
-                .delete('/api/meal/420')
+                .put('/api/meal/420')
                 .set(
                     'authorization',
-                    'Bearer ' + token
+                    'Bearer ' + wrongToken
                 )
+                .send({
+                    "name": "Spaghetti Bolognese",
+                    "description": "Dé pastaklassieker bij uitstek.",
+                    "isActive": "1",
+                    "isVega": "1",
+                    "isVegan": "1",
+                    "isToTakeHome": "1",
+                    "dateTime": "2022-05-15T20:07:10.870Z",
+                    "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
+                    "maxAmountOfParticipants": "6",
+                    "price": "6.75"
+                })
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(404)
@@ -451,7 +384,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                         status,
                         message
                     } = res.body
-                    status.should.be.a('number')
+                    status.should.be.a('number').that.equals(404)
                     message.should.be
                         .a('string')
                         .that.contains('This meal does not exist')
@@ -459,13 +392,16 @@ describe('UC-3 Manage meals /api/meal', () => {
                 })
         })
 
-        it('TC-305-5 Meal successfully deleted', (done) => {
+        it('TC-302-5 Meal succesfully updated', (done) => {
             chai.request(server)
-                .delete('/api/meal/1')
+                .put('/api/meal/1')
                 .set(
                     'authorization',
                     'Bearer ' + token
                 )
+                .send({
+                    "price": "6.75"
+                })
                 .end((err, res) => {
                     assert.ifError(err)
                     res.should.have.status(200)
@@ -473,17 +409,275 @@ describe('UC-3 Manage meals /api/meal', () => {
 
                     res.body.should.be
                         .an('object')
-                        .that.has.all.keys('status', 'message')
+                        .that.has.all.keys('status', 'result')
 
                     let {
-                        status,
-                        message
+                        result
                     } = res.body
-                    status.should.be.a('number')
-                    message.should.be.a('string')
-                        .that.contains('Meal succesfully deleted')
+
+                    expect(result.id).to.equal(1);
+                    expect(result.name).to.equal('Meal A')
+                    expect(result.description).to.equal('description')
+                    expect(result.isActive).to.equal(0)
+                    expect(result.isVega).to.equal(0)
+                    expect(result.isVegan).to.equal(0)
+                    expect(result.isToTakeHome).to.equal(1)
+                    expect(result.dateTime).to.equal('2022-05-17T08:27:15.000Z')
+                    expect(result.imageUrl).to.equal('image url')
+                    expect(result.maxAmountOfParticipants).to.equal(5)
+                    expect(result.price).to.equal('6.75')
+                    expect(result.cookId).to.equal(1)
                     done()
                 })
         })
+})
+
+describe('UC-303 Request a list of meals', () => {
+    it('TC-303-1 List of meals returned', (done) => {
+        chai.request(server)
+            .get('/api/meal')
+            .end((err, res) => {
+                assert.ifError(err)
+                res.should.have.status(200)
+                res.should.be.an('object')
+
+                res.body.should.be
+                    .an('object')
+                    .that.has.all.keys('status', 'result')
+
+                let {
+                    result
+                } = res.body
+
+                expect(result[0].id).to.equal(1);
+                expect(result[0].name).to.equal('Meal A')
+                expect(result[0].description).to.equal('description')
+                expect(result[0].isActive).to.equal(0)
+                expect(result[0].isVega).to.equal(0)
+                expect(result[0].isVegan).to.equal(0)
+                expect(result[0].isToTakeHome).to.equal(1)
+                expect(result[0].dateTime).to.equal('2022-05-17T08:27:15.000Z')
+                expect(result[0].imageUrl).to.equal('image url')
+                expect(result[0].maxAmountOfParticipants).to.equal(5)
+                expect(result[0].price).to.equal('6.50')
+
+                expect(result[0].cookId).to.equal(1)
+
+                /* expect(result[0].cook.cookId).to.equal(1);
+                expect(result[0].cook.firstName).to.equal('first');
+                expect(result[0].cook.lastName).to.equal('last');
+                expect(result[0].cook.isActive).to.equal(1);
+                expect(result[0].cook.emailAdress).to.equal('name@server.nl');
+                expect(result[0].cook.password).to.equal('secret');
+                expect(result[0].cook.phoneNumber).to.equal('-');
+                expect(result[0].cook.roles).to.equal('editor,guest');
+                expect(result[0].cook.street).to.equal('street');
+                expect(result[0].cook.city).to.equal('city'); */
+
+                expect(result[1].id).to.equal(2);
+                expect(result[1].name).to.equal('Meal B')
+                expect(result[1].description).to.equal('description')
+                expect(result[1].isActive).to.equal(0)
+                expect(result[1].isVega).to.equal(0)
+                expect(result[1].isVegan).to.equal(0)
+                expect(result[1].isToTakeHome).to.equal(1)
+                expect(result[1].dateTime).to.equal('2022-05-17T08:27:15.000Z')
+                expect(result[1].imageUrl).to.equal('image url')
+                expect(result[1].maxAmountOfParticipants).to.equal(5)
+                expect(result[1].price).to.equal('6.50')
+
+                expect(result[0].cookId).to.equal(1)
+
+                /* expect(result[1].cook.cookId).to.equal(1);
+                expect(result[1].cook.firstName).to.equal('first');
+                expect(result[1].cook.lastName).to.equal('last');
+                expect(result[1].cook.isActive).to.equal(1);
+                expect(result[1].cook.emailAdress).to.equal('name@server.nl');
+                expect(result[1].cook.password).to.equal('secret');
+                expect(result[1].cook.phoneNumber).to.equal('-');
+                expect(result[1].cook.roles).to.equal('editor,guest');
+                expect(result[1].cook.street).to.equal('street');
+                expect(result[1].cook.city).to.equal('city'); */
+                done()
+            })
     })
+})
+
+describe('UC-304 Request details of a meal', () => {
+    it('TC-304-1 Meal does not exist', (done) => {
+        chai.request(server)
+            .get('/api/meal/420')
+            .end((err, res) => {
+                assert.ifError(err)
+                res.should.have.status(404)
+                res.should.be.an('object')
+
+                res.body.should.be
+                    .an('object')
+                    .that.has.all.keys('status', 'message')
+
+                let {
+                    status,
+                    message
+                } = res.body
+                status.should.be.a('number')
+                message.should.be
+                    .a('string')
+                    .that.contains('This user does not exist')
+                done()
+            })
+    })
+})
+
+it('TC-304-2 Meal details returned', (done) => {
+    chai.request(server)
+        .get('/api/meal/1')
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(200)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'result')
+            done()
+        })
+})
+
+describe('UC-305 Deleting meals', () => {
+it('TC-305-2 not logged in (no token)', (done) => {
+    chai.request(server)
+        .delete('/api/meal/1')
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(401)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'message')
+
+            let {
+                status,
+                message
+            } = res.body
+            status.should.be.a('number')
+            message.should.be
+                .a('string')
+                .that.contains('Authorization header is missing')
+            done()
+        })
+})
+
+it('TC-305-2 not logged in (wrong token)', (done) => {
+    chai.request(server)
+        .delete('/api/meal/1')
+        .set(
+            'authorization',
+            'Bearer ' + 123
+        )
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(401)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'message')
+
+            let {
+                status,
+                message
+            } = res.body
+            status.should.be.a('number')
+            message.should.be
+                .a('string')
+                .that.contains('Unauthorized')
+            done()
+        })
+})
+
+it('TC-305-3 Not the owner of the data', (done) => {
+    chai.request(server)
+        .delete('/api/meal/1')
+        .set(
+            'authorization',
+            'Bearer ' + wrongToken
+        )
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(403)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'message')
+
+            let {
+                status,
+                message
+            } = res.body
+            status.should.be.a('number')
+            message.should.be
+                .a('string')
+                .that.contains('You are not the owner of this meal')
+            done()
+        })
+})
+
+it('TC-305-4 Meal does not exist', (done) => {
+    chai.request(server)
+        .delete('/api/meal/420')
+        .set(
+            'authorization',
+            'Bearer ' + token
+        )
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(404)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'message')
+
+            let {
+                status,
+                message
+            } = res.body
+            status.should.be.a('number')
+            message.should.be
+                .a('string')
+                .that.contains('This meal does not exist')
+            done()
+        })
+})
+
+it('TC-305-5 Meal successfully deleted', (done) => {
+    chai.request(server)
+        .delete('/api/meal/1')
+        .set(
+            'authorization',
+            'Bearer ' + token
+        )
+        .end((err, res) => {
+            assert.ifError(err)
+            res.should.have.status(200)
+            res.should.be.an('object')
+
+            res.body.should.be
+                .an('object')
+                .that.has.all.keys('status', 'message')
+
+            let {
+                status,
+                message
+            } = res.body
+            status.should.be.a('number')
+            message.should.be.a('string')
+                .that.contains('Meal succesfully deleted')
+            done()
+        })
+})
+})
 })

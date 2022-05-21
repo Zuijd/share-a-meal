@@ -60,6 +60,39 @@ let controller = {
         }
     },
 
+    checkForUpdateData: (req, res, next) => {
+        let {
+            name,
+            price,
+            maxAmountOfParticipants
+        } = req.body;
+
+        if (name || price || maxAmountOfParticipants) {
+            try {
+                if (name) {
+                    assert(typeof name === 'string', 'Name must be a string')                    
+                }
+                if (price) {
+                    assert(typeof price === 'string', 'Price must be a string')                   
+                }
+                if (maxAmountOfParticipants) {
+                    assert(typeof maxAmountOfParticipants === 'string', 'MaxAmountOfParticipants must be a string')                
+                }
+                next();
+            } catch (err) {
+                res.status(400).json({
+                    status: 400,
+                    message: err.message,
+                });
+            }
+        } else {
+            res.status(400).json({
+                status: 400, 
+                message: 'Mandatory field is missing'
+            })
+        }
+    },
+
 
     getAllMeals: (req, res, next) => {
         dbconnection.getConnection((err, connection) => {
