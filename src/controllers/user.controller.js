@@ -3,6 +3,9 @@ const dbconnection = require('../../database/dbconnection');
 var Regex = require('regex');
 const jwt = require('jsonwebtoken');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 let controller = {
     validateUser: (req, res, next) => {
         let user = req.body;
@@ -111,25 +114,32 @@ let controller = {
                             message: "User already exist",
                         });
                     } else {
-                        connection.query(
-                            `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${user.password}', '${user.emailAdress}')`,
-                            (error, results, fields) => {
-                                connection.release();
+                        bcrypt.genSalt(saltRounds, function (err, salt) {
+                            if (err) next(err);
+                            bcrypt.hash(user.password, salt, function (err, hash) {
+                                if (err) next(err);
+                                connection.query(
+                                    `INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES ('${user.firstName}', '${user.lastName}', '${user.street}', '${user.city}', '${hash}', '${user.emailAdress}')`,
+                                    (error, results, fields) => {
+                                        connection.release();
 
-                                if (error) next(error);
+                                        if (error) next(error);
 
-                                user = {
-                                    "id": results.insertId,
-                                    ...user,
-                                }
+                                        user = {
+                                            "id": results.insertId,
+                                            ...user,
+                                        }
 
-                                if (results.affectedRows > 0) {
-                                    res.status(201).json({
-                                        status: 201,
-                                        result: user,
+                                        if (results.affectedRows > 0) {
+                                            res.status(201).json({
+                                                status: 201,
+                                                result: user,
+                                            });
+                                        }
                                     });
-                                }
-                            });
+
+                            })
+                        })
                     }
                 });
 
@@ -371,18 +381,23 @@ let controller = {
                                                 isActiveNum = 0;
                                             }
 
-                                            connection.query(
-                                                `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${isActiveNum}' WHERE id = '${userId}'`,
-                                                (error, results, fields) => {
-                                                    connection.release();
+                                            bcrypt.genSalt(saltRounds, function (err, salt) {
+                                                bcrypt.hash(newUser.password, salt, function (err, hash) {
 
-                                                    if (error) next(error);
+                                                    connection.query(
+                                                        `UPDATE user SET firstname = '${newUser.firstName}', lastname = '${newUser.lastName}', street = '${newUser.street}', city = '${newUser.city}', password = '${newUser.password}', emailAdress = '${newUser.emailAdress}', phoneNumber = '${newUser.phoneNumber}', isActive = '${isActiveNum}' WHERE id = '${userId}'`,
+                                                        (error, results, fields) => {
+                                                            connection.release();
 
-                                                    res.status(200).json({
-                                                        status: 200,
-                                                        result: newUser,
-                                                    });
-                                                });
+                                                            if (error) next(error);
+
+                                                            res.status(200).json({
+                                                                status: 200,
+                                                                result: newUser,
+                                                            });
+                                                        });
+                                                })
+                                            })
                                         });
                                 }
                             });

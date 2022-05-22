@@ -6,6 +6,8 @@ const loginQuery = `SELECT * FROM user WHERE emailAdress = ?`;
 const mealByIdQuery = `SELECT * FROM meal WHERE id = ?`;
 const userByIdQuery = `SELECT * FROM user WHERE id = ?`;
 
+const bcrypt = require('bcrypt');
+
 
 const controller = {
     login: (req, res, next) => {
@@ -28,29 +30,35 @@ const controller = {
                     const user = results[0];
 
                     if (user) {
-                        if (password === user.password) {
-                            jwt.sign({
-                                    userId: user.id
-                                },
-                                process.env.JWT_SECRET, {
-                                    expiresIn: '100d'
-                                },
-                                (err, token) => {
-                                    if (token) {
-                                        user.token = token;
-                                        res.status(200).json({
-                                            status: 200,
-                                            result: user,
-                                        });
-                                    }
-                                    if (err) next(err);
+                        bcrypt.compare(password, user.password, function (err, result) {
+                            if (result || password === user.password) {
+                                jwt.sign({
+                                        userId: user.id
+                                    },
+                                    process.env.JWT_SECRET, {
+                                        expiresIn: '100d'
+                                    },
+                                    (err, token) => {
+                                        if (token) {
+                                            user.token = token;
+                                            let userOutput = {
+                                                ...user,
+                                                password, 
+                                            }
+                                            res.status(200).json({
+                                                status: 200,
+                                                result: userOutput,
+                                            });
+                                        }
+                                        if (err) next(err);
+                                    });
+                            } else {
+                                res.status(400).json({
+                                    status: 400,
+                                    message: "Incorrect password"
                                 });
-                        } else {
-                            res.status(400).json({
-                                status: 400,
-                                message: "Incorrect password"
-                            });
-                        }
+                            }
+                        })
                     } else {
                         res.status(404).json({
                             status: 404,
@@ -130,7 +138,7 @@ const controller = {
 
             });
         })
-    }, 
+    },
 
     checkUserOwnership: (req, res, next) => {
         dbconnection.getConnection((err, connection) => {

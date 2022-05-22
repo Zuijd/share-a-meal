@@ -161,7 +161,7 @@ describe('UC-1 login', () => {
                 .post('/api/auth/login')
                 .send({
                     emailAdress: "name@server.nl",
-                    password: "secret",
+                    password: "secret"
                 })
                 .end((err, res) => {
                     assert.ifError(err)
