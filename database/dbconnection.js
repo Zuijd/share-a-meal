@@ -2,8 +2,8 @@ const mysql = require('mysql2');
 require('dotenv').config();
 const pool = mysql.createPool({
     multipleStatements: true,
-    connectionLimit: 100,
-    queueLimit: 100,
+    connectionLimit: 500,
+    queueLimit: 500,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,

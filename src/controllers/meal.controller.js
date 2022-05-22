@@ -230,6 +230,7 @@ let controller = {
 
     updateMeal: (req, res, next) => {
         dbconnection.getConnection((err, connection) => {
+            connection.release();
             if (err) next(err);
 
             const meal = req.body;
