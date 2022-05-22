@@ -247,7 +247,7 @@ let controller = {
                     ...meal,
                 }
 
-                const newMealDataInput = [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
+                const newMealDataInput = [newMeal.isActive, newMeal.isVega, newMeal.isVegan, newMeal.isToTakeHome, newMeal.dateTime, newMeal.maxAmountOfParticipants, newMeal.price, newMeal.imageUrl, newMeal.name, newMeal.description, mealId];
 
                 connection.query(updateMealQuery, newMealDataInput, (error, results, fields) => {
                     connection.release();
