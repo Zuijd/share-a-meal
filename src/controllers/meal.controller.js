@@ -288,7 +288,7 @@ let controller = {
 
             const mealId = req.params.mealId;
             let userId;
-
+            
             const authHeader = req.headers.authorization;
             const token = authHeader.substring(7, authHeader.length);
 
@@ -301,26 +301,62 @@ let controller = {
                 if (error) next(error);
 
                 if (results[0]) {
-                    connection.query(addParticpantQuery, [mealId, userId], (error, results, fields) => {
+
+                    const maxParticipants = results.maxAmountOfParticipants;
+
+                    connection.query(getParticipantsByMealIdQuery, mealId, (error, results, fields) => {
                         connection.release();
-                        if (error) {
+                        if (error) next(error);
+
+                        let maxAmountOfParticipantsReached = false;
+                        const numberOfparticipants = results.length;
+                        if (numberOfparticipants === maxParticipants) {
+                            maxAmountOfParticipantsReached = true;
+                        }
+
+                        let alreadyParticipating = false;
+                        results.forEach(element => {
+                            if (element.userId === userId) {
+                                alreadyParticipating = true;
+                            }
+                        });
+
+                        if (alreadyParticipating) {
                             connection.query(deleteParticipantByIds, [mealId, userId], (error, results, fields) => {
                                 connection.release();
                                 if (error) next(error);
                                 res.status(200).json({
                                     status: 200,
-                                    result: results,
-                                    message: "Afgemeld"
+                                    result: {
+                                        'currentlyParticipating': false,
+                                        'currentAmountOfParticipants': numberOfparticipants - 1
+                                    }
                                 })
                             })
                         } else {
-                            res.status(200).json({
-                                status: 200,
-                                result: results,
-                                message: "Aangemeld"
+                            connection.query(addParticpantQuery, [mealId, userId], (error, results, fields) => {
+                                connection.release();
+                                if (error) next(error);
+
+                                if (maxAmountOfParticipantsReached) {
+                                    res.status(401).json({
+                                        status: 401,
+                                        message: "This meal has reached its maximum amount of participants"
+                                    })
+                                } else {
+                                    res.status(200).json({
+                                        status: 200,
+                                        result: {
+                                            'currentlyParticipating': true,
+                                            'currentAmountOfParticipants': numberOfparticipants + 1
+                                        }
+                                    })
+                                }
+
                             })
                         }
                     })
+
                 } else {
                     res.status(404).json({
                         status: 404,

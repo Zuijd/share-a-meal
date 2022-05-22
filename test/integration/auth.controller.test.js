@@ -20,10 +20,11 @@ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
 const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 const INSERT_USER = 'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' + '(1, "first", "last", "name@server.nl", "secret", "street", "city");'
 const INSERT_MEALS = 'INSERT INTO `meal` (`id`, `name`, `description`, `imageUrl`, `dateTime`, `maxAmountOfParticipants`, `price`, `cookId`) VALUES' + "(1, 'Meal A', 'description', 'image url', '2022-05-17 08:27:15', 5, 6.5, 1)," + "(2, 'Meal B', 'description', 'image url', '2022-05-17 08:27:15', 5, 6.5, 1);"
+const INSERT_PARTICIPATION = 'INSERT INTO `meal_participants_user` (`mealId`, `userId`) VALUES (2, 1);'
 
 describe('UC-1 login', () => {
 
-    before((done) => {
+    beforeEach((done) => {
         token = jwt.sign({
                 userId: 1
             },
@@ -43,7 +44,7 @@ describe('UC-1 login', () => {
     beforeEach((done) => {
         dbconnection.getConnection((err, connection) => {
             if (err) throw err
-            connection.query(CLEAR_DB + INSERT_USER + INSERT_MEALS, (error, results, fields) => {
+            connection.query(CLEAR_DB + INSERT_USER + INSERT_MEALS + INSERT_PARTICIPATION, (error, results, fields) => {
                 connection.release()
                 if (error) throw error
                 done()
