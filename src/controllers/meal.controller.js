@@ -150,52 +150,54 @@ let controller = {
                 connection.release();
                 if (error) next(error);
 
-                const mealId = results.insertId;
+                if (results) {
+                    const mealId = results.insertId;
 
-                connection.query(userByIdQuery, cookId, (error, results, fields) => {
-                    connection.release();
-                    if (error) next(error);
-
-                    const cookInfo = results[0];
-
-                    connection.query(addParticpantQuery, [mealId, cookId], (error, results, fields) => {
+                    connection.query(userByIdQuery, cookId, (error, results, fields) => {
                         connection.release();
                         if (error) next(error);
 
-                        connection.query(getParticipantsByMealIdQuery, mealId, (error, results, fields) => {
+                        const cookInfo = results[0];
+
+                        connection.query(addParticpantQuery, [mealId, cookId], (error, results, fields) => {
                             connection.release();
                             if (error) next(error);
 
-                            let participantIds = [];
+                            connection.query(getParticipantsByMealIdQuery, mealId, (error, results, fields) => {
+                                connection.release();
+                                if (error) next(error);
 
-                            results.forEach(element => {
-                                participantIds.push(element.userId);
-                            });
+                                let participantIds = [];
 
-                            let participants = [];
-                            participantIds.forEach(element => {
-                                connection.query(userByIdQuery, element, (error, results, fields) => {
-                                    connection.release();
-                                    if (error) next(error);
+                                results.forEach(element => {
+                                    participantIds.push(element.userId);
+                                });
 
-                                    participants.push(results[0]);
+                                let participants = [];
+                                participantIds.forEach(element => {
+                                    connection.query(userByIdQuery, element, (error, results, fields) => {
+                                        connection.release();
+                                        if (error) next(error);
 
-                                    mealFullData = {
-                                        "id": mealId,
-                                        ...meal,
-                                        "cook": cookInfo,
-                                        "participants": participants
-                                    };
+                                        participants.push(results[0]);
 
-                                    res.status(201).json({
-                                        status: 201,
-                                        result: mealFullData,
+                                        mealFullData = {
+                                            "id": mealId,
+                                            ...meal,
+                                            "cook": cookInfo,
+                                            "participants": participants
+                                        };
+
+                                        res.status(201).json({
+                                            status: 201,
+                                            result: mealFullData,
+                                        });
                                     });
                                 });
                             });
                         });
                     });
-                });
+                }
             });
         });
     },
@@ -289,7 +291,7 @@ let controller = {
 
             const mealId = req.params.mealId;
             let userId;
-            
+
             const authHeader = req.headers.authorization;
             const token = authHeader.substring(7, authHeader.length);
 
