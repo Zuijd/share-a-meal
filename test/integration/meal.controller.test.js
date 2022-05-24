@@ -173,7 +173,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                     "isVega": "1",
                     "isVegan": "1",
                     "isToTakeHome": "1",
-                    "dateTime": "2022-05-15T20:07:10.870Z",
+                    "dateTime": "2022-05-15T20:07:10",
                     "imageUrl": "https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg",
                     "maxAmountOfParticipants": "6",
                     "price": "6.75"
@@ -183,26 +183,25 @@ describe('UC-3 Manage meals /api/meal', () => {
 
                     res.body.should.be
                         .an('object')
-                        .that.has.all.keys('status', 'message')
+                        .that.has.all.keys('status', 'result')
 
-                    /* let createdMeal = res.body.result.id */
+                     let createdMeal = res.body.result.id 
 
                     let {
                         status,
-                        message
+                        result
                     } = res.body
 
-                    status.should.be.a('number').that.equals(500)
-                    message.should.be.a('string').that.equals("rfrfrf")
+                    status.should.be.a('number').that.equals(201)
 
-                    /* expect(result.id).to.equal(createdMeal);
+                    expect(result.id).to.equal(createdMeal);
                     expect(result.name).to.equal('Spaghetti Bolognese')
                     expect(result.description).to.equal('Dé pastaklassieker bij uitstek.')
                     expect(result.isActive).to.equal('1')
                     expect(result.isVega).to.equal('1')
                     expect(result.isVegan).to.equal('1')
                     expect(result.isToTakeHome).to.equal('1')
-                    expect(result.dateTime).to.equal('2022-05-15T20:07:10.870Z')
+                    expect(result.dateTime).to.equal('2022-05-15T20:07:10')
                     expect(result.imageUrl).to.equal('https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg')
                     expect(result.maxAmountOfParticipants).to.equal('6')
                     expect(result.price).to.equal('6.75')
@@ -227,7 +226,7 @@ describe('UC-3 Manage meals /api/meal', () => {
                     expect(result.participants[0].phoneNumber).to.equal('-');
                     expect(result.participants[0].roles).to.equal('editor,guest');
                     expect(result.participants[0].street).to.equal('street');
-                    expect(result.participants[0].city).to.equal('city'); */
+                    expect(result.participants[0].city).to.equal('city');
 
                     done()
                 })
